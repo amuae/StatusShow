@@ -71,13 +71,11 @@
     }, 10000)
   }
 
-  // 完全异步：等页面加载完再注入
+  // 完全异步：页面加载后立即启动
   if (document.readyState === 'complete') {
-    setTimeout(run, 1500)
+    run()
   } else {
-    window.addEventListener('load', function () {
-      setTimeout(run, 1500)
-    })
+    window.addEventListener('load', run)
   }
 
   // SPA 路由变化时重新注入
@@ -85,7 +83,7 @@
   setInterval(function () {
     if (location.pathname !== lastPath) {
       lastPath = location.pathname
-      setTimeout(run, 1000)
+      setTimeout(run, 500)
     }
   }, 2000)
 })()
