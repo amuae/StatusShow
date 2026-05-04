@@ -61,6 +61,11 @@ export function NodeCard({ node }: { node: Node }) {
             <div className="flex items-center gap-3">
               <Stat icon={ArrowDown}>{bytes(u.netIn || 0)}/s</Stat>
               <Stat icon={ArrowUp}>{bytes(u.netOut || 0)}/s</Stat>
+              {(u.totalReceived != null || u.totalTransmitted != null) && (
+                <span className="ml-auto text-[11px] opacity-60">
+                  ↓{bytes(u.totalReceived || 0)} ↑{bytes(u.totalTransmitted || 0)}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <Stat icon={Clock}>{uptime(u.uptime)}</Stat>

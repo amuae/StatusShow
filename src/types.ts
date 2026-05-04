@@ -146,6 +146,8 @@ export interface Usage {
   diskTotal: number
   netIn?: number
   netOut?: number
+  totalReceived?: number
+  totalTransmitted?: number
   uptime?: number
   ts?: number
 }

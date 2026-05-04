@@ -1,1 +1,106 @@
-/* 你可以自定义这里 */
+/* 访客 IP 胶囊 — Komari 蓝色风格 */
+#visitor-capsule {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(50px);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 95vw;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  background: rgba(239, 246, 255, 0.85);
+  color: #1e3a5f;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15);
+  opacity: 0;
+  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  pointer-events: none;
+}
+#visitor-capsule.vc-show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+#visitor-capsule:hover {
+  background: rgba(219, 234, 254, 0.9);
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
+}
+.vc-flag {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+}
+.vc-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.vc-ip {
+  font-weight: 600;
+  color: #1d4ed8;
+}
+.vc-sep {
+  width: 1px;
+  height: 12px;
+  background: rgba(96, 165, 250, 0.35);
+  flex-shrink: 0;
+}
+.vc-city {
+  color: #1e3a5f;
+}
+.vc-org {
+  display: inline-block;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  color: rgba(30, 58, 95, 0.7);
+}
+html.dark #visitor-capsule {
+  border-color: rgba(96, 165, 250, 0.2);
+  background: rgba(23, 37, 84, 0.8);
+  color: #bfdbfe;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.22);
+}
+html.dark #visitor-capsule:hover {
+  background: rgba(30, 58, 138, 0.85);
+}
+html.dark .vc-ip {
+  color: #93c5fd;
+}
+html.dark .vc-sep {
+  background: rgba(96, 165, 250, 0.25);
+}
+html.dark .vc-city {
+  color: #bfdbfe;
+}
+html.dark .vc-org {
+  color: rgba(191, 219, 254, 0.6);
+}
+@media (max-width: 768px) {
+  #visitor-capsule {
+    bottom: 16px;
+    padding: 6px 12px;
+    font-size: 12px;
+    transform: translateX(-50%) translateY(50px) scale(0.75);
+  }
+  #visitor-capsule.vc-show {
+    transform: translateX(-50%) translateY(0) scale(0.75);
+  }
+  .vc-org { max-width: 100px; }
+}
