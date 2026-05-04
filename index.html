@@ -14,12 +14,24 @@
         }
       } catch (_) {}
     </script>
-    <link rel="stylesheet" href="./custom.css?v=5" />
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script src="./custom.js?v=5" defer></script>
+    <script>
+      // 访客胶囊 — 页面完全加载后异步注入，零阻塞
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          var link = document.createElement('link')
+          link.rel = 'stylesheet'
+          link.href = './custom.css?v=6'
+          document.head.appendChild(link)
+          var script = document.createElement('script')
+          script.src = './custom.js?v=6'
+          document.body.appendChild(script)
+        }, 2000)
+      })
+    </script>
   </body>
 </html>
