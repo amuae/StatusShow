@@ -42,8 +42,7 @@ export function App() {
   const { config, error: configError } = useConfig()
   const { nodes, errors, pool } = useNodes(config)
 
-  const uuids = useMemo(() => [...nodes.keys()], [nodes])
-  const latency = useAllLatency(pool, uuids)
+  const latency = useAllLatency(pool)
 
   const [view, setView] = useState<View>(initialView)
   const [sort, setSort] = useState<Sort>(initialSort)
@@ -237,7 +236,7 @@ export function App() {
           {!empty && view === 'cards' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {list.map(n => (
-                <NodeCard key={n.uuid} node={n} tcpPingData={latency.tcp.get(n.uuid)} />
+                <NodeCard key={n.uuid} node={n} tcpPingData={latency.get(n.uuid)} />
               ))}
             </div>
           )}

@@ -14,8 +14,9 @@ function extractLatency(result: TaskQueryResult): number | null {
   return null
 }
 
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null
+  const t = payload[0]?.payload?.t
   return (
     <div style={{
       fontSize: 10,
@@ -25,19 +26,25 @@ function CustomTooltip({ active, payload, label }: any) {
       padding: '6px 10px',
       boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
     }}>
-      <div style={{ marginBottom: 4, color: 'hsl(var(--muted-foreground))', fontSize: 9 }}>
-        {payload[0]?.payload?.t ? new Date(payload[0].payload.t).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : ''}
-      </div>
+      {t != null && (
+        <div style={{ marginBottom: 4, color: 'hsl(var(--muted-foreground))', fontSize: 9 }}>
+          {new Date(t).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        </div>
+      )}
       {payload.map((p: any) => (
         <div key={p.dataKey} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '1px 0' }}>
           <span style={{ width: 8, height: 3, borderRadius: 2, background: p.color, display: 'inline-block' }} />
-          <span style={{ flex: 1 }}>{p.dataKey}</span>
-          <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{typeof p.value === 'number' ? `${p.value.toFixed(1)} ms` : '-'}</span>
+          <span style={{ flex: 1, whiteSpace: 'nowrap' }}>{p.dataKey}</span>
+          <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>
+            {typeof p.value === 'number' ? `${p.value.toFixed(1)} ms` : '-'}
+          </span>
         </div>
       ))}
     </div>
   )
 }
+
+const BUCKET_MS = 10_000 // 10-second buckets to align different sources
 
 export function TcpPingChart({ data }: Props) {
   const { chartData, sources } = useMemo(() => {
@@ -45,6 +52,7 @@ export function TcpPingChart({ data }: Props) {
       .filter(r => r.success)
       .map(r => ({
         t: r.timestamp,
+        bucket: Math.round(r.timestamp / BUCKET_MS) * BUCKET_MS,
         latency: extractLatency(r),
         source: r.cron_source || 'default',
       }))
@@ -53,19 +61,19 @@ export function TcpPingChart({ data }: Props) {
 
     if (cleaned.length < 2) return { chartData: [], sources: [] }
 
-    // Auto-detect all sources from data
+    // Auto-detect all sources
     const allSources = [...new Set(cleaned.map(d => d.source))].filter(Boolean)
 
-    // Merge entries by timestamp — each timestamp gets all source values
+    // Merge by bucket (rounded timestamp) — each bucket gets all source values
     const merged = new Map<number, Record<string, number | string>>()
     for (const d of cleaned) {
-      const existing = merged.get(d.t)
-      if (existing) {
-        // If same source appears multiple times at same timestamp, keep the latest
-        existing[d.source] = d.latency!
-      } else {
-        merged.set(d.t, { t: d.t, [d.source]: d.latency! })
+      let entry = merged.get(d.bucket)
+      if (!entry) {
+        entry = { t: d.bucket }
+        merged.set(d.bucket, entry)
       }
+      // Keep latest value per source in same bucket
+      entry[d.source] = d.latency!
     }
 
     return {

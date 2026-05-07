@@ -4,65 +4,57 @@ import type { BackendPool } from '../api/pool'
 import type { TaskQueryResult } from '../types'
 
 const WINDOW_MS = 60 * 60 * 1000
-const REFRESH_MS = 2_000
-const QUERY_TIMEOUT_MS = 5_000
+const REFRESH_MS = 10_000
+const QUERY_TIMEOUT_MS = 15_000
 
-function clean(rows: TaskQueryResult[] | undefined): TaskQueryResult[] {
-  return (rows ?? [])
-    .filter(r => r.success && r.task_event_result)
-    .sort((a, b) => a.timestamp - b.timestamp)
-}
-
-export interface LatencyMap {
-  ping: Map<string, TaskQueryResult[]>
-  tcp: Map<string, TaskQueryResult[]>
-}
-
-export function useAllLatency(pool: BackendPool | null, uuids: string[]) {
-  const [data, setData] = useState<LatencyMap>({ ping: new Map(), tcp: new Map() })
+export function useAllLatency(pool: BackendPool | null) {
+  const [tcp, setTcp] = useState<Map<string, TaskQueryResult[]>>(new Map())
 
   useEffect(() => {
-    if (!pool || !uuids.length) return
+    if (!pool) return
     let cancelled = false
 
     const fetchAll = async () => {
       const now = Date.now()
       const window: [number, number] = [now - WINDOW_MS, now]
 
+      // One query per backend, NO uuid filter — server returns all results
       const results = await Promise.allSettled(
-        pool.entries.map(async entry => {
-          // Query TCP ping for all uuids on this backend
-          const allTcp = await Promise.allSettled(
-            uuids.map(uuid =>
-              taskQuery(
-                entry.client,
-                [{ uuid }, { timestamp_from_to: window }, { type: 'tcp_ping' }],
-                QUERY_TIMEOUT_MS,
-              ).then(rows => ({ uuid, rows: clean(rows) }))
-            )
+        pool.entries.map(entry =>
+          taskQuery(
+            entry.client,
+            [{ timestamp_from_to: window }, { type: 'tcp_ping' }],
+            QUERY_TIMEOUT_MS,
           )
-          return allTcp
-        })
+        )
       )
 
       if (cancelled) return
 
-      const tcpMap = new Map<string, TaskQueryResult[]>()
-      for (const result of results) {
-        if (result.status !== 'fulfilled') continue
-        for (const r of result.value) {
-          if (r.status !== 'fulfilled') continue
-          tcpMap.set(r.value.uuid, r.value.rows)
+      // Group by uuid
+      const grouped = new Map<string, TaskQueryResult[]>()
+      for (const r of results) {
+        if (r.status !== 'fulfilled' || !r.value) continue
+        for (const row of r.value) {
+          if (!row.success || !row.uuid) continue
+          const arr = grouped.get(row.uuid) || []
+          arr.push(row)
+          grouped.set(row.uuid, arr)
         }
       }
 
-      setData({ ping: new Map(), tcp: tcpMap })
+      // Sort each group by timestamp
+      for (const arr of grouped.values()) {
+        arr.sort((a, b) => a.timestamp - b.timestamp)
+      }
+
+      setTcp(grouped)
     }
 
     fetchAll()
     const timer = setInterval(fetchAll, REFRESH_MS)
     return () => { cancelled = true; clearInterval(timer) }
-  }, [pool, uuids.join(',')])
+  }, [pool])
 
-  return data
+  return tcp
 }
