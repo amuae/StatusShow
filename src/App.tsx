@@ -210,7 +210,7 @@ export function App() {
 
           {/* Map area: sidebar cards (PC) + world map */}
           {!empty && (
-            <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex flex-col lg:flex-row gap-4 items-stretch">
               {/* Left sidebar cards — hidden on mobile, shown on lg+ */}
               <div className="hidden lg:flex flex-col gap-4 w-64 shrink-0">
                 <BandwidthGraph nodes={nodes} />
@@ -218,7 +218,7 @@ export function App() {
               </div>
               {/* World map — full width on mobile, flex-1 on PC */}
               <div className="flex-1 min-w-0">
-                <WorldMap nodes={list} onOpen={setSelected} />
+                <WorldMap nodes={list} onOpen={setSelected} fillHeight />
               </div>
             </div>
           )}

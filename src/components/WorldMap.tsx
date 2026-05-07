@@ -7,6 +7,7 @@ import type { Node } from '../types'
 interface Props {
   nodes: Node[]
   onOpen?: (uuid: string) => void
+  fillHeight?: boolean
 }
 
 const MAP_W = 900
@@ -37,7 +38,7 @@ function groupKey(lat: number, lng: number) {
   return `${lat.toFixed(3)},${lng.toFixed(3)}`
 }
 
-export function WorldMap({ nodes, onOpen }: Props) {
+export function WorldMap({ nodes, onOpen, fillHeight }: Props) {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const [renderKey, setRenderKey] = useState<string | null>(null)
   const closeTimer = useRef<number | null>(null)
@@ -77,10 +78,10 @@ export function WorldMap({ nodes, onOpen }: Props) {
   const total = groups.reduce((s, g) => s + g.nodes.length, 0)
 
   return (
-    <Card className="p-3 sm:p-4">
+    <Card className={`p-3 sm:p-4 ${fillHeight ? 'h-full' : ''}`}>
       <div
-        className="relative w-full overflow-hidden rounded-md border border-border/60 bg-background/40 text-foreground"
-        style={{ aspectRatio: `${MAP_W} / ${MAP_H}` }}
+        className={`relative w-full overflow-hidden rounded-md border border-border/60 bg-background/40 text-foreground ${fillHeight ? 'h-full' : ''}`}
+        style={fillHeight ? undefined : { aspectRatio: `${MAP_W} / ${MAP_H}` }}
         onClick={() => setOpenKey(null)}
         
       >
