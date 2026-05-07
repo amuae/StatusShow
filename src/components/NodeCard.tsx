@@ -6,7 +6,6 @@ import { TcpPingChart } from './TcpPingChart'
 import { Flag } from './Flag'
 import { StatusDot } from './StatusDot'
 import { bytes } from '../utils/format'
-import { remainingDays } from '../utils/cost'
 import { cpuLabel, deriveUsage, displayName, osLabel, virtLabel } from '../utils/derive'
 import { cn } from '../utils/cn'
 import type { Node, TaskQueryResult } from '../types'
@@ -42,10 +41,9 @@ export function NodeCard({ node, tcpPingData }: Props) {
           {node.meta?.price > 0 && (
             <span className="text-xs text-muted-foreground font-mono shrink-0 whitespace-nowrap">
               {node.meta.priceUnit}{node.meta.price}
-              {node.meta.expireTime && (() => {
-                const days = remainingDays(node.meta.expireTime)
-                return days != null ? <span> · {days > 0 ? `${days}天` : '已过期'}</span> : null
-              })()}
+              {node.meta.expireTime && (
+                <span> · {new Date(node.meta.expireTime).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span>
+              )}
             </span>
           )}
         </div>
