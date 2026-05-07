@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { AreaChart, Area, ResponsiveContainer, Tooltip, YAxis, XAxis } from 'recharts'
+import { useMemo, useState } from 'react'
+import { AreaChart, Area, ResponsiveContainer, YAxis, XAxis } from 'recharts'
 import type { TaskQueryResult } from '../types'
 
 interface Props {
@@ -14,39 +14,12 @@ function extractLatency(result: TaskQueryResult): number | null {
   return null
 }
 
-function CustomTooltip({ active, payload }: any) {
-  if (!active || !payload?.length) return null
-  const t = payload[0]?.payload?.t
-  return (
-    <div style={{
-      fontSize: 10,
-      background: 'hsl(var(--card))',
-      border: '1px solid hsl(var(--border))',
-      borderRadius: 6,
-      padding: '6px 10px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-    }}>
-      {t != null && (
-        <div style={{ marginBottom: 4, color: 'hsl(var(--muted-foreground))', fontSize: 9 }}>
-          {new Date(t).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-        </div>
-      )}
-      {payload.map((p: any) => (
-        <div key={p.dataKey} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '1px 0' }}>
-          <span style={{ width: 8, height: 3, borderRadius: 2, background: p.color, display: 'inline-block' }} />
-          <span style={{ flex: 1, whiteSpace: 'nowrap' }}>{p.dataKey}</span>
-          <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>
-            {typeof p.value === 'number' ? `${p.value.toFixed(1)} ms` : '-'}
-          </span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
 const BUCKET_MS = 10_000
+const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899']
 
 export function TcpPingChart({ data }: Props) {
+  const [hovered, setHovered] = useState<{ t: number; items: { name: string; color: string; value: number }[] } | null>(null)
+
   const { chartData, sources } = useMemo(() => {
     const cleaned = data
       .filter(r => r.success)
@@ -84,8 +57,6 @@ export function TcpPingChart({ data }: Props) {
     )
   }
 
-  const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899']
-
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-[10px] text-muted-foreground px-1">
@@ -99,9 +70,28 @@ export function TcpPingChart({ data }: Props) {
           ))}
         </div>
       </div>
-      <div className="h-12">
+      <div
+        className="h-12 relative"
+        onMouseLeave={() => setHovered(null)}
+        onTouchEnd={() => setHovered(null)}
+      >
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+            onMouseMove={(state: any) => {
+              if (!state?.activePayload?.length) return
+              const payload = state.activePayload
+              setHovered({
+                t: payload[0]?.payload?.t || 0,
+                items: payload.map((p: any) => ({
+                  name: p.dataKey,
+                  color: p.color || '#888',
+                  value: typeof p.value === 'number' ? p.value : 0,
+                })),
+              })
+            }}
+          >
             <defs>
               {sources.map((s, i) => (
                 <linearGradient key={s} id={`tcpGrad_${s}`} x1="0" y1="0" x2="0" y2="1">
@@ -112,7 +102,6 @@ export function TcpPingChart({ data }: Props) {
             </defs>
             <XAxis hide />
             <YAxis hide domain={[0, 300]} />
-            <Tooltip content={<CustomTooltip />} />
             {sources.map((s, i) => (
               <Area
                 key={s}
@@ -128,6 +117,22 @@ export function TcpPingChart({ data }: Props) {
             ))}
           </AreaChart>
         </ResponsiveContainer>
+
+        {/* Tooltip — only visible when hovering */}
+        {hovered && (
+          <div className="absolute left-2 top-0 z-10 text-[10px] rounded-md border bg-popover px-2 py-1.5 shadow-md pointer-events-none">
+            <div className="mb-0.5 opacity-60 text-[9px]">
+              {new Date(hovered.t).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </div>
+            {hovered.items.map(item => (
+              <div key={item.name} className="flex items-center gap-1.5 py-px">
+                <span className="w-2 h-[3px] rounded-full inline-block" style={{ background: item.color }} />
+                <span>{item.name}</span>
+                <span className="ml-auto font-mono font-semibold">{item.value.toFixed(1)} ms</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
