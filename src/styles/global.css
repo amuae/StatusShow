@@ -2,105 +2,230 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── 水墨风主题 ─────────────────────────────────────── */
+
 @layer base {
   :root {
-    --background: 220 33% 98%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
-    --accent: 220 14% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 14% 92%;
-    --input: 220 14% 92%;
-    --ring: 217 91% 60%;
-    --radius: 0.75rem;
+    /* 宣纸底色 */
+    --background: 40 30% 96%;
+    --foreground: 220 20% 15%;
+    /* 素纸白 */
+    --card: 40 20% 98%;
+    --card-foreground: 220 20% 15%;
+    --popover: 40 20% 98%;
+    --popover-foreground: 220 20% 15%;
+    /* 墨色 */
+    --primary: 220 25% 20%;
+    --primary-foreground: 40 30% 96%;
+    --secondary: 40 15% 92%;
+    --secondary-foreground: 220 20% 15%;
+    --muted: 40 10% 90%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 40 15% 92%;
+    --accent-foreground: 220 20% 15%;
+    /* 朱砂红 (印章) */
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 40 30% 96%;
+    --border: 40 12% 85%;
+    --input: 40 12% 85%;
+    --ring: 220 25% 20%;
+    --radius: 0.5rem;
   }
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 5.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 5.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 217 91% 60%;
+    /* 夜墨底 */
+    --background: 220 20% 8%;
+    --foreground: 40 15% 88%;
+    /* 玄纸 */
+    --card: 220 18% 12%;
+    --card-foreground: 40 15% 88%;
+    --popover: 220 18% 12%;
+    --popover-foreground: 40 15% 88%;
+    /* 淡墨 */
+    --primary: 40 15% 80%;
+    --primary-foreground: 220 20% 8%;
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 40 15% 88%;
+    --muted: 220 12% 16%;
+    --muted-foreground: 40 10% 55%;
+    --accent: 220 15% 18%;
+    --accent-foreground: 40 15% 88%;
+    /* 朱砂 */
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 40 15% 88%;
+    --border: 220 12% 20%;
+    --input: 220 12% 20%;
+    --ring: 40 15% 80%;
   }
+
   * {
     @apply border-border;
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
+    font-family: 'LXGW WenKai', 'Noto Serif SC', 'Source Han Serif SC', 'STSong', 'SimSun', serif;
     -webkit-font-smoothing: antialiased;
+    letter-spacing: 0.02em;
+    line-height: 1.7;
   }
   *::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
   *::-webkit-scrollbar-track {
     background: transparent;
   }
   *::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted-foreground) / 0.3);
-    border-radius: 8px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
+    background-color: hsl(var(--muted-foreground) / 0.2);
+    border-radius: 4px;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--muted-foreground) / 0.5);
+    background-color: hsl(var(--muted-foreground) / 0.4);
   }
 }
 
+/* ── 水墨背景 ────────────────────────────────────────── */
+
 .bg-soft {
-  background-color: hsl(220 33% 98%);
+  background-color: hsl(40 30% 96%);
   background-image:
-    radial-gradient(60rem 36rem at 12% -10%, rgba(99, 102, 241, 0.16), transparent 60%),
-    radial-gradient(48rem 32rem at 95% 0%, rgba(56, 189, 248, 0.18), transparent 60%),
-    radial-gradient(42rem 28rem at 85% 95%, rgba(244, 114, 182, 0.12), transparent 60%),
-    radial-gradient(38rem 30rem at 5% 90%, rgba(34, 197, 94, 0.10), transparent 60%);
+    /* 淡墨山水 - 远山 */
+    radial-gradient(120% 50% at 20% 100%, hsl(220 15% 75% / 0.15), transparent 50%),
+    radial-gradient(80% 40% at 80% 90%, hsl(220 12% 70% / 0.12), transparent 50%),
+    /* 水墨晕染 */
+    radial-gradient(60% 40% at 10% 20%, hsl(220 10% 80% / 0.10), transparent 60%),
+    radial-gradient(50% 30% at 90% 10%, hsl(220 8% 85% / 0.08), transparent 60%);
   background-attachment: fixed;
 }
 
 .dark .bg-soft {
-  background-color: hsl(var(--background));
-  background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(ellipse at top, black 40%, transparent 90%);
+  background-color: hsl(220 20% 8%);
+  background-image:
+    /* 夜墨山水 */
+    radial-gradient(120% 50% at 20% 100%, hsl(220 15% 15% / 0.4), transparent 50%),
+    radial-gradient(80% 40% at 80% 90%, hsl(220 12% 12% / 0.3), transparent 50%),
+    /* 星点 */
+    radial-gradient(1px 1px at 20% 30%, hsl(40 15% 60% / 0.15), transparent),
+    radial-gradient(1px 1px at 60% 70%, hsl(40 15% 60% / 0.1), transparent),
+    radial-gradient(1px 1px at 80% 20%, hsl(40 15% 60% / 0.12), transparent);
+  background-size: 100% 100%, 100% 100%, 200px 200px, 300px 300px, 250px 250px;
+  background-attachment: fixed;
 }
 
+/* ── 水墨卡片 ────────────────────────────────────────── */
+
 .card-soft {
-  background-color: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background-color: hsl(40 20% 98% / 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(40 12% 85% / 0.6);
   box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.04),
-    0 8px 24px -12px rgba(15, 23, 42, 0.10);
+    0 1px 2px hsl(220 10% 60% / 0.06),
+    0 4px 16px -8px hsl(220 10% 60% / 0.08);
 }
 .dark .card-soft {
-  background-color: hsl(var(--card));
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  background-color: hsl(220 18% 12% / 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid hsl(220 12% 20% / 0.5);
+  box-shadow:
+    0 1px 2px hsl(220 20% 5% / 0.3),
+    0 4px 16px -8px hsl(220 20% 5% / 0.2);
+}
+
+/* ── 水墨排版 ────────────────────────────────────────── */
+
+/* 标题用楷体 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'LXGW WenKai', 'Noto Serif SC', 'KaiTi', 'STKaiti', serif;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* 等宽用思源 */
+.font-mono {
+  font-family: 'JetBrains Mono', 'Noto Sans SC', monospace;
+  letter-spacing: 0;
+}
+
+/* ── 水墨动画 ────────────────────────────────────────── */
+
+@keyframes ink-spread {
+  0% { opacity: 0; transform: scale(0.95); filter: blur(4px); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes ink-fade {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes cloud-drift {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  50% { transform: translateX(10px) translateY(-5px); }
+}
+
+/* 卡片入场动画 */
+.animate-ink-in {
+  animation: ink-spread 0.4s ease-out both;
+}
+
+/* 延迟入场 */
+.ink-delay-1 { animation-delay: 0.1s; }
+.ink-delay-2 { animation-delay: 0.2s; }
+.ink-delay-3 { animation-delay: 0.3s; }
+
+/* ── 水墨装饰 ────────────────────────────────────────── */
+
+/* 印章红 */
+.text-seal { color: hsl(0 65% 45%); }
+.dark .text-seal { color: hsl(0 60% 55%); }
+.bg-seal { background-color: hsl(0 65% 45%); }
+.dark .bg-seal { background-color: hsl(0 60% 55%); }
+
+/* 墨色渐变 */
+.text-ink {
+  background: linear-gradient(135deg, hsl(220 25% 20%), hsl(220 15% 40%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.dark .text-ink {
+  background: linear-gradient(135deg, hsl(40 15% 80%), hsl(40 10% 60%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 水墨边框 */
+.border-ink {
+  border: 1px solid hsl(220 15% 70% / 0.3);
+  border-radius: var(--radius);
+}
+.dark .border-ink {
+  border: 1px solid hsl(40 10% 30% / 0.3);
+}
+
+/* 墨点装饰 */
+.ink-dot::before {
+  content: '·';
+  margin: 0 0.5em;
+  opacity: 0.4;
+}
+
+/* ── 进度条水墨风 ────────────────────────────────────── */
+
+/* 圆形仪表盘颜色覆盖 */
+[data-gauge="ok"] { color: hsl(150 20% 45%); }
+[data-gauge="warn"] { color: hsl(40 40% 50%); }
+[data-gauge="hot"] { color: hsl(20 50% 50%); }
+[data-gauge="crit"] { color: hsl(0 50% 50%); }
+
+/* ── 响应式 ──────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
 }
