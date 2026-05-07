@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { AreaChart, Area, ResponsiveContainer, Tooltip, YAxis, XAxis } from 'recharts'
 import type { TaskQueryResult } from '../types'
 
 interface Props {
