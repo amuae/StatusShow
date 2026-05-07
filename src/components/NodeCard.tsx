@@ -40,9 +40,9 @@ export function NodeCard({ node, tcpPingData }: Props) {
           </span>
           {node.meta?.price > 0 && (
             <span className="text-xs text-muted-foreground font-mono shrink-0 whitespace-nowrap">
-              {node.meta.priceUnit}{node.meta.price}
+              {node.meta.priceUnit}{node.meta.price}/{node.meta.priceCycle <= 31 ? '月' : node.meta.priceCycle <= 100 ? '季' : '年'}
               {node.meta.expireTime && (
-                <span> · {new Date(node.meta.expireTime).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span>
+                <span> · {new Date(node.meta.expireTime).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })}到期</span>
               )}
             </span>
           )}
