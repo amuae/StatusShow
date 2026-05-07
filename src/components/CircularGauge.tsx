@@ -17,10 +17,10 @@ function gaugeColor(value: number): string {
 }
 
 function gaugeStroke(value: number): string {
-  if (value >= 90) return 'hsl(0 68% 42%)'
-  if (value >= 70) return 'hsl(35 60% 45%)'
-  if (value >= 50) return 'hsl(38 45% 48%)'
-  return 'hsl(220 25% 35%)'
+  if (value >= 90) return 'hsl(0 62% 50%)'
+  if (value >= 70) return 'hsl(35 55% 50%)'
+  if (value >= 50) return 'hsl(38 40% 52%)'
+  return 'hsl(150 18% 45%)'
 }
 
 export function CircularGauge({ value, size = 64, strokeWidth = 5, label, sub, className }: Props) {
