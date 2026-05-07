@@ -4,7 +4,7 @@ export function Background() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* 左侧主山 — 浓墨近山 */}
         <svg
-          className="absolute -left-10 bottom-0 w-[700px] h-[450px] opacity-[0.12] dark:opacity-[0.20]"
+          className="absolute -left-[5%] bottom-0 w-[60vw] h-[450px] opacity-[0.12] dark:opacity-[0.20]"
           viewBox="0 0 700 450"
           fill="none"
           style={{ animation: 'cloud-drift 25s ease-in-out infinite' }}
@@ -30,7 +30,7 @@ export function Background() {
 
         {/* 右侧远山 — 淡墨 */}
         <svg
-          className="absolute -right-10 bottom-0 w-[600px] h-[400px] opacity-[0.08] dark:opacity-[0.18]"
+          className="absolute -right-[5%] bottom-0 w-[55vw] h-[400px] opacity-[0.08] dark:opacity-[0.18]"
           viewBox="0 0 600 400"
           fill="none"
           style={{ animation: 'cloud-drift 30s ease-in-out infinite reverse' }}

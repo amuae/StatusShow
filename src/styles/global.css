@@ -7,29 +7,29 @@
 @layer base {
   :root {
     /* 宣纸底色 */
-    --background: 40 30% 96%;
-    --foreground: 220 20% 15%;
+    --background: 36 35% 93%;
+    --foreground: 220 25% 12%;
     /* 素纸白 */
-    --card: 40 20% 98%;
-    --card-foreground: 220 20% 15%;
-    --popover: 40 20% 98%;
-    --popover-foreground: 220 20% 15%;
-    /* 墨色 */
-    --primary: 220 25% 20%;
-    --primary-foreground: 40 30% 96%;
-    --secondary: 40 15% 92%;
-    --secondary-foreground: 220 20% 15%;
-    --muted: 40 10% 90%;
-    --muted-foreground: 220 10% 45%;
-    --accent: 40 15% 92%;
-    --accent-foreground: 220 20% 15%;
+    --card: 36 30% 96%;
+    --card-foreground: 220 25% 12%;
+    --popover: 36 30% 96%;
+    --popover-foreground: 220 25% 12%;
+    /* 浓墨 */
+    --primary: 220 30% 15%;
+    --primary-foreground: 36 35% 93%;
+    --secondary: 36 20% 88%;
+    --secondary-foreground: 220 25% 12%;
+    --muted: 36 15% 85%;
+    --muted-foreground: 220 12% 40%;
+    --accent: 36 20% 88%;
+    --accent-foreground: 220 25% 12%;
     /* 朱砂红 (印章) */
-    --destructive: 0 65% 45%;
-    --destructive-foreground: 40 30% 96%;
-    --border: 40 12% 85%;
-    --input: 40 12% 85%;
-    --ring: 220 25% 20%;
-    --radius: 0.5rem;
+    --destructive: 0 68% 42%;
+    --destructive-foreground: 36 35% 93%;
+    --border: 36 18% 80%;
+    --input: 36 18% 80%;
+    --ring: 220 30% 15%;
+    --radius: 0.375rem;
   }
   .dark {
     /* 夜墨底 — 深靛青，有呼吸感 */
@@ -64,21 +64,21 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'LXGW WenKai', 'Noto Serif SC', 'Source Han Serif SC', 'STSong', 'SimSun', serif;
+    font-family: 'LXGW WenKai', 'Noto Serif SC', 'Source Han Serif SC', 'KaiTi', 'STKaiti', serif;
     -webkit-font-smoothing: antialiased;
-    letter-spacing: 0.02em;
-    line-height: 1.7;
+    letter-spacing: 0.03em;
+    line-height: 1.75;
   }
   *::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   *::-webkit-scrollbar-track {
     background: transparent;
   }
   *::-webkit-scrollbar-thumb {
     background-color: hsl(var(--muted-foreground) / 0.2);
-    border-radius: 4px;
+    border-radius: 3px;
   }
   *::-webkit-scrollbar-thumb:hover {
     background-color: hsl(var(--muted-foreground) / 0.4);
@@ -88,28 +88,44 @@
 /* ── 水墨背景 ────────────────────────────────────────── */
 
 .bg-soft {
-  background-color: hsl(40 30% 96%);
+  background-color: hsl(36 35% 93%);
   background-image:
-    /* 淡墨山水 - 远山 */
-    radial-gradient(120% 50% at 20% 100%, hsl(220 15% 75% / 0.15), transparent 50%),
-    radial-gradient(80% 40% at 80% 90%, hsl(220 12% 70% / 0.12), transparent 50%),
+    /* 宣纸纹理 — 用微小半透明白点模拟纤维 */
+    radial-gradient(circle 0.5px at 20% 30%, hsl(36 20% 80% / 0.35) 0%, transparent 100%),
+    radial-gradient(circle 0.4px at 65% 15%, hsl(36 20% 78% / 0.30) 0%, transparent 100%),
+    radial-gradient(circle 0.6px at 40% 70%, hsl(36 20% 82% / 0.25) 0%, transparent 100%),
+    radial-gradient(circle 0.3px at 80% 50%, hsl(36 20% 76% / 0.30) 0%, transparent 100%),
+    radial-gradient(circle 0.5px at 10% 85%, hsl(36 20% 80% / 0.28) 0%, transparent 100%),
+    /* 远山层叠 — 多重渐变营造纵深 */
+    radial-gradient(ellipse 100% 45% at 15% 100%, hsl(220 18% 68% / 0.18), transparent 55%),
+    radial-gradient(ellipse 80% 35% at 85% 95%, hsl(220 15% 62% / 0.14), transparent 50%),
+    radial-gradient(ellipse 60% 30% at 50% 100%, hsl(220 12% 72% / 0.10), transparent 45%),
     /* 水墨晕染 */
-    radial-gradient(60% 40% at 10% 20%, hsl(220 10% 80% / 0.10), transparent 60%),
-    radial-gradient(50% 30% at 90% 10%, hsl(220 8% 85% / 0.08), transparent 60%);
+    radial-gradient(ellipse 50% 40% at 8% 12%, hsl(220 12% 70% / 0.10), transparent 60%),
+    radial-gradient(ellipse 40% 35% at 92% 6%, hsl(220 10% 75% / 0.08), transparent 60%);
+  background-size: 180px 180px, 220px 220px, 160px 160px, 200px 200px, 240px 240px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
   background-attachment: fixed;
 }
 
 .dark .bg-soft {
-  background-color: hsl(220 20% 8%);
+  background-color: hsl(220 22% 10%);
   background-image:
+    /* 夜纸纹理 */
+    radial-gradient(circle 0.5px at 20% 30%, hsl(36 12% 38% / 0.30) 0%, transparent 100%),
+    radial-gradient(circle 0.4px at 65% 15%, hsl(36 12% 35% / 0.25) 0%, transparent 100%),
+    radial-gradient(circle 0.6px at 40% 70%, hsl(36 12% 40% / 0.20) 0%, transparent 100%),
+    radial-gradient(circle 0.3px at 80% 50%, hsl(36 12% 36% / 0.25) 0%, transparent 100%),
+    radial-gradient(circle 0.5px at 10% 85%, hsl(36 12% 38% / 0.22) 0%, transparent 100%),
     /* 夜墨山水 */
-    radial-gradient(120% 50% at 20% 100%, hsl(220 15% 15% / 0.4), transparent 50%),
-    radial-gradient(80% 40% at 80% 90%, hsl(220 12% 12% / 0.3), transparent 50%),
-    /* 星点 */
-    radial-gradient(1px 1px at 20% 30%, hsl(40 15% 60% / 0.15), transparent),
-    radial-gradient(1px 1px at 60% 70%, hsl(40 15% 60% / 0.1), transparent),
-    radial-gradient(1px 1px at 80% 20%, hsl(40 15% 60% / 0.12), transparent);
-  background-size: 100% 100%, 100% 100%, 200px 200px, 300px 300px, 250px 250px;
+    radial-gradient(ellipse 100% 45% at 15% 100%, hsl(220 20% 14% / 0.55), transparent 55%),
+    radial-gradient(ellipse 80% 35% at 85% 95%, hsl(220 18% 12% / 0.40), transparent 50%),
+    radial-gradient(ellipse 60% 30% at 50% 100%, hsl(220 15% 16% / 0.30), transparent 45%),
+    /* 墨点星尘 */
+    radial-gradient(1.5px 1.5px at 15% 20%, hsl(36 12% 45% / 0.22), transparent),
+    radial-gradient(1px 1px at 45% 55%, hsl(36 12% 40% / 0.18), transparent),
+    radial-gradient(1.5px 1.5px at 75% 10%, hsl(36 12% 45% / 0.20), transparent),
+    radial-gradient(1px 1px at 30% 75%, hsl(36 12% 40% / 0.15), transparent);
+  background-size: 180px 180px, 220px 220px, 160px 160px, 200px 200px, 240px 240px, 100% 100%, 100% 100%, 100% 100%, 200px 200px, 260px 260px, 220px 220px, 300px 300px;
   background-attachment: fixed;
 }
 
@@ -118,12 +134,17 @@
 .card-soft {
   background-color: hsl(36 30% 96% / 0.92);
   background-image:
-    /* 宣纸纤维纹理 */
-    url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E"),
-    /* 墨迹晕染 — 左上淡墨 */
-    radial-gradient(ellipse 80% 60% at 15% 10%, hsl(220 15% 70% / 0.12), transparent 70%),
-    /* 右下淡墨 */
-    radial-gradient(ellipse 60% 50% at 90% 85%, hsl(220 12% 75% / 0.10), transparent 70%);
+    /* 宣纸纤维 — CSS渐变点阵模拟 */
+    radial-gradient(circle 0.5px at 15% 25%, hsl(36 20% 82% / 0.40) 0%, transparent 100%),
+    radial-gradient(circle 0.4px at 55% 10%, hsl(36 20% 80% / 0.35) 0%, transparent 100%),
+    radial-gradient(circle 0.6px at 35% 65%, hsl(36 20% 84% / 0.30) 0%, transparent 100%),
+    radial-gradient(circle 0.3px at 75% 45%, hsl(36 20% 78% / 0.35) 0%, transparent 100%),
+    radial-gradient(circle 0.5px at 5% 80%, hsl(36 20% 82% / 0.32) 0%, transparent 100%),
+    radial-gradient(circle 0.4px at 90% 70%, hsl(36 20% 80% / 0.28) 0%, transparent 100%),
+    /* 墨迹晕染 — 左上 + 右下 */
+    radial-gradient(ellipse 80% 60% at 10% 5%, hsl(220 15% 72% / 0.10), transparent 65%),
+    radial-gradient(ellipse 60% 50% at 95% 90%, hsl(220 12% 76% / 0.08), transparent 65%);
+  background-size: 160px 160px, 200px 200px, 140px 140px, 180px 180px, 220px 220px, 170px 170px, 100% 100%, 100% 100%;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid hsl(36 18% 80% / 0.5);
@@ -138,14 +159,20 @@
     0 2px 6px hsl(220 15% 50% / 0.08),
     0 10px 28px -10px hsl(220 15% 50% / 0.12);
 }
+
 .dark .card-soft {
   background-color: hsl(220 20% 14% / 0.92);
   background-image:
-    /* 暗纸纹理 */
-    url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+    /* 暗纸纤维 */
+    radial-gradient(circle 0.5px at 15% 25%, hsl(36 12% 32% / 0.35) 0%, transparent 100%),
+    radial-gradient(circle 0.4px at 55% 10%, hsl(36 12% 30% / 0.30) 0%, transparent 100%),
+    radial-gradient(circle 0.6px at 35% 65%, hsl(36 12% 34% / 0.25) 0%, transparent 100%),
+    radial-gradient(circle 0.3px at 75% 45%, hsl(36 12% 30% / 0.30) 0%, transparent 100%),
+    radial-gradient(circle 0.5px at 5% 80%, hsl(36 12% 32% / 0.28) 0%, transparent 100%),
     /* 深墨晕染 */
-    radial-gradient(ellipse 80% 60% at 15% 10%, hsl(215 20% 18% / 0.4), transparent 70%),
-    radial-gradient(ellipse 60% 50% at 90% 85%, hsl(220 18% 16% / 0.35), transparent 70%);
+    radial-gradient(ellipse 80% 60% at 10% 5%, hsl(215 20% 18% / 0.35), transparent 65%),
+    radial-gradient(ellipse 60% 50% at 95% 90%, hsl(220 18% 16% / 0.30), transparent 65%);
+  background-size: 160px 160px, 200px 200px, 140px 140px, 180px 180px, 220px 220px, 100% 100%, 100% 100%;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid hsl(220 14% 22% / 0.5);
@@ -162,14 +189,12 @@
 
 /* ── 水墨排版 ────────────────────────────────────────── */
 
-/* 标题用楷体 */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'LXGW WenKai', 'Noto Serif SC', 'KaiTi', 'STKaiti', serif;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
-/* 等宽用思源 */
 .font-mono {
   font-family: 'JetBrains Mono', 'Noto Sans SC', monospace;
   letter-spacing: 0;
@@ -178,47 +203,48 @@ h1, h2, h3, h4, h5, h6 {
 /* ── 水墨动画 ────────────────────────────────────────── */
 
 @keyframes ink-spread {
-  0% { opacity: 0; transform: scale(0.95); filter: blur(4px); }
+  0% { opacity: 0; transform: scale(0.96); filter: blur(3px); }
   100% { opacity: 1; transform: scale(1); filter: blur(0); }
 }
 
 @keyframes ink-fade {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes cloud-drift {
   0%, 100% { transform: translateX(0) translateY(0); }
-  50% { transform: translateX(10px) translateY(-5px); }
+  50% { transform: translateX(15px) translateY(-8px); }
 }
 
-/* 卡片入场动画 */
 .animate-ink-in {
-  animation: ink-spread 0.4s ease-out both;
+  animation: ink-spread 0.5s ease-out both;
 }
 
-/* 延迟入场 */
-.ink-delay-1 { animation-delay: 0.1s; }
-.ink-delay-2 { animation-delay: 0.2s; }
-.ink-delay-3 { animation-delay: 0.3s; }
+.ink-delay-1 { animation-delay: 0.08s; }
+.ink-delay-2 { animation-delay: 0.16s; }
+.ink-delay-3 { animation-delay: 0.24s; }
+.ink-delay-4 { animation-delay: 0.32s; }
+.ink-delay-5 { animation-delay: 0.40s; }
+.ink-delay-6 { animation-delay: 0.48s; }
 
 /* ── 水墨装饰 ────────────────────────────────────────── */
 
 /* 印章红 */
-.text-seal { color: hsl(0 65% 45%); }
-.dark .text-seal { color: hsl(0 60% 55%); }
-.bg-seal { background-color: hsl(0 65% 45%); }
-.dark .bg-seal { background-color: hsl(0 60% 55%); }
+.text-seal { color: hsl(0 68% 42%); }
+.dark .text-seal { color: hsl(0 65% 55%); }
+.bg-seal { background-color: hsl(0 68% 42%); }
+.dark .bg-seal { background-color: hsl(0 65% 55%); }
 
-/* 墨色渐变 */
+/* 墨色渐变文字 */
 .text-ink {
-  background: linear-gradient(135deg, hsl(220 25% 20%), hsl(220 15% 40%));
+  background: linear-gradient(135deg, hsl(220 30% 15%), hsl(220 20% 35%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .dark .text-ink {
-  background: linear-gradient(135deg, hsl(40 15% 80%), hsl(40 10% 60%));
+  background: linear-gradient(135deg, hsl(36 18% 80%), hsl(36 12% 55%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -226,27 +252,27 @@ h1, h2, h3, h4, h5, h6 {
 
 /* 水墨边框 */
 .border-ink {
-  border: 1px solid hsl(220 15% 70% / 0.3);
+  border: 1px solid hsl(36 18% 78% / 0.5);
   border-radius: var(--radius);
 }
 .dark .border-ink {
-  border: 1px solid hsl(40 10% 30% / 0.3);
+  border: 1px solid hsl(225 15% 20% / 0.5);
 }
 
-/* 墨点装饰 */
-.ink-dot::before {
-  content: '·';
-  margin: 0 0.5em;
-  opacity: 0.4;
+/* 进度条水墨风 */
+.progress-ink {
+  background: linear-gradient(90deg, hsl(220 25% 25%), hsl(220 18% 40%));
+}
+.dark .progress-ink {
+  background: linear-gradient(90deg, hsl(36 15% 70%), hsl(36 10% 50%));
 }
 
-/* ── 进度条水墨风 ────────────────────────────────────── */
+/* ── 圆形仪表盘颜色 ────────────────────────────────── */
 
-/* 圆形仪表盘颜色覆盖 */
-[data-gauge="ok"] { color: hsl(150 20% 45%); }
-[data-gauge="warn"] { color: hsl(40 40% 50%); }
-[data-gauge="hot"] { color: hsl(20 50% 50%); }
-[data-gauge="crit"] { color: hsl(0 50% 50%); }
+[data-gauge="ok"] { color: hsl(150 22% 40%); }
+[data-gauge="warn"] { color: hsl(38 45% 48%); }
+[data-gauge="hot"] { color: hsl(18 55% 48%); }
+[data-gauge="crit"] { color: hsl(0 55% 48%); }
 
 /* ── 响应式 ──────────────────────────────────────────── */
 
