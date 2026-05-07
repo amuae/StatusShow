@@ -1,11 +1,12 @@
-import { ArrowDown, ArrowUp, Clock, type LucideIcon } from 'lucide-react'
+import { ArrowDown, ArrowUp, type LucideIcon } from 'lucide-react'
 import { Badge } from './ui/badge'
 import { Card } from './ui/card'
 import { CircularGauge } from './CircularGauge'
 import { TcpPingChart } from './TcpPingChart'
 import { Flag } from './Flag'
 import { StatusDot } from './StatusDot'
-import { bytes, uptime } from '../utils/format'
+import { bytes } from '../utils/format'
+import { remainingDays } from '../utils/cost'
 import { cpuLabel, deriveUsage, displayName, osLabel, virtLabel } from '../utils/derive'
 import { cn } from '../utils/cn'
 import type { Node, TaskQueryResult } from '../types'
@@ -38,10 +39,13 @@ export function NodeCard({ node, tcpPingData }: Props) {
           <span className="font-semibold flex-1 min-w-0 truncate" title={displayName(node)}>
             {displayName(node)}
           </span>
-          {u.uptime != null && u.uptime > 0 && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground font-mono shrink-0">
-              <Clock className="h-3 w-3" />
-              {uptime(u.uptime)}
+          {node.meta?.price > 0 && (
+            <span className="text-xs text-muted-foreground font-mono shrink-0 whitespace-nowrap">
+              {node.meta.priceUnit}{node.meta.price}
+              {node.meta.expireTime && (() => {
+                const days = remainingDays(node.meta.expireTime)
+                return days != null ? <span> · {days > 0 ? `${days}天` : '已过期'}</span> : null
+              })()}
             </span>
           )}
         </div>
