@@ -3,9 +3,10 @@ import { Badge } from './ui/badge'
 import { Card } from './ui/card'
 import { CircularGauge } from './CircularGauge'
 import { TcpPingChart } from './TcpPingChart'
+import { Flag } from './Flag'
 import { StatusDot } from './StatusDot'
 import { bytes, uptime } from '../utils/format'
-import { cpuLabel, deriveUsage, displayName, distroLogo, osLabel, virtLabel } from '../utils/derive'
+import { cpuLabel, deriveUsage, displayName, osLabel, virtLabel } from '../utils/derive'
 import { cn } from '../utils/cn'
 import type { Node, TaskQueryResult } from '../types'
 import type { ReactNode } from 'react'
@@ -19,7 +20,6 @@ export function NodeCard({ node, tcpPingData }: Props) {
   const u = deriveUsage(node)
   const tags = Array.isArray(node.meta?.tags) ? node.meta.tags : []
   const os = osLabel(node)
-  const logo = distroLogo(node)
   const virt = virtLabel(node)
   const cpu = cpuLabel(node)
 
@@ -31,12 +31,10 @@ export function NodeCard({ node, tcpPingData }: Props) {
           !node.online && 'opacity-60',
         )}
       >
-        {/* Header: status + OS logo + name + uptime */}
+        {/* Header: status + country flag + name + uptime */}
         <div className="flex items-center gap-2">
           <StatusDot online={node.online} />
-          {logo && (
-            <img src={logo} alt="" className="w-5 h-5 shrink-0 object-contain" loading="lazy" />
-          )}
+          <Flag code={node.meta?.region} className="shrink-0" />
           <span className="font-semibold flex-1 min-w-0 truncate" title={displayName(node)}>
             {displayName(node)}
           </span>
@@ -62,25 +60,26 @@ export function NodeCard({ node, tcpPingData }: Props) {
           <CircularGauge value={u.disk} size={60} strokeWidth={5} label="磁盘" sub={u.diskTotal ? `${bytes(u.diskUsed)}` : undefined} />
         </div>
 
-        {/* Network speed */}
-        <div className="border-t border-dashed pt-2 font-mono text-xs text-muted-foreground">
-          <div className="flex items-center gap-3">
-            <Stat icon={ArrowDown}>{bytes(u.netIn || 0)}/s</Stat>
-            <Stat icon={ArrowUp}>{bytes(u.netOut || 0)}/s</Stat>
-            {(u.totalReceived != null || u.totalTransmitted != null) && (
-              <span className="ml-auto">
-                ↓{bytes(u.totalReceived || 0)} ↑{bytes(u.totalTransmitted || 0)}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* TCP Ping chart */}
+        {/* TCP Ping chart - before network stats */}
         {tcpPingData && tcpPingData.length > 0 && (
           <div className="border-t border-dashed pt-2">
             <TcpPingChart data={tcpPingData} />
           </div>
         )}
+
+        {/* Network speed + traffic - bottom */}
+        <div className="border-t border-dashed pt-2 font-mono text-xs text-muted-foreground space-y-1">
+          <div className="flex items-center gap-3">
+            <Stat icon={ArrowDown}>{bytes(u.netIn || 0)}/s</Stat>
+            <Stat icon={ArrowUp}>{bytes(u.netOut || 0)}/s</Stat>
+          </div>
+          {(u.totalReceived != null || u.totalTransmitted != null) && (
+            <div className="flex items-center gap-3">
+              <span>↓{bytes(u.totalReceived || 0)}</span>
+              <span>↑{bytes(u.totalTransmitted || 0)}</span>
+            </div>
+          )}
+        </div>
 
         {/* Tags */}
         {tags.length > 0 && (

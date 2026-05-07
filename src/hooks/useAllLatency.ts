@@ -11,7 +11,6 @@ function clean(rows: TaskQueryResult[] | undefined): TaskQueryResult[] {
   return (rows ?? [])
     .filter(r => r.success && r.task_event_result)
     .sort((a, b) => a.timestamp - b.timestamp)
-    .slice(-60)
 }
 
 export interface LatencyMap {
