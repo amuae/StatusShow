@@ -41,6 +41,25 @@ export function WorldMap({ nodes, onOpen }: Props) {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const [renderKey, setRenderKey] = useState<string | null>(null)
   const closeTimer = useRef<number | null>(null)
+  const [rotation, setRotation] = useState(0)
+  const dragRef = useRef<{ startX: number; startRot: number } | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  function onPointerDown(e: React.PointerEvent) {
+    // Only start drag from the map background (not markers)
+    if ((e.target as SVGElement).tagName === 'circle' || (e.target as SVGElement).tagName === 'text') return
+    dragRef.current = { startX: e.clientX, startRot: rotation }
+    ;(e.target as HTMLElement).setPointerCapture?.(e.pointerId)
+  }
+  function onPointerMove(e: React.PointerEvent) {
+    if (!dragRef.current) return
+    const dx = e.clientX - dragRef.current.startX
+    // Sensitivity: ~0.15 degrees per pixel
+    setRotation(dragRef.current.startRot + dx * 0.15)
+  }
+  function onPointerUp() {
+    dragRef.current = null
+  }
 
   useEffect(() => {
     if (openKey) setRenderKey(openKey)
@@ -82,10 +101,15 @@ export function WorldMap({ nodes, onOpen }: Props) {
         className="relative w-full overflow-hidden rounded-md border border-border/60 bg-background/40 text-foreground"
         style={{ aspectRatio: `${MAP_W} / ${MAP_H}` }}
         onClick={() => setOpenKey(null)}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        ref={containerRef}
       >
         <ComposableMap
           projection="geoEqualEarth"
-          projectionConfig={{ scale: 175 }}
+          projectionConfig={{ scale: 175, rotation: [rotation, 0, 0] }}
           width={MAP_W}
           height={MAP_H}
           style={{ width: '100%', height: '100%' }}
@@ -204,9 +228,7 @@ export function WorldMap({ nodes, onOpen }: Props) {
           </div>
         )}
 
-        <div className="absolute bottom-3 right-4 font-mono text-sm font-semibold tracking-wider text-foreground pointer-events-none uppercase">
-          {total} nodes
-        </div>
+
       </div>
     </Card>
   )
