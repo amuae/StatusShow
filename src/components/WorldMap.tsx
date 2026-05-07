@@ -44,6 +44,7 @@ export function WorldMap({ nodes, onOpen }: Props) {
   const [rotation, setRotation] = useState(0)
   const dragRef = useRef<{ startX: number; startRot: number; moved: boolean } | null>(null)
   const dragging = useRef(false)
+  const mapRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function onMove(e: MouseEvent) {
@@ -60,15 +61,26 @@ export function WorldMap({ nodes, onOpen }: Props) {
     }
     document.addEventListener('mousemove', onMove)
     document.addEventListener('mouseup', onUp)
-    document.addEventListener('touchmove', onTouchMove, { passive: false })
     document.addEventListener('touchend', onUp)
+    const el = mapRef.current
+    if (el) {
+      el.addEventListener('touchstart', onTouchStart, { passive: true })
+      el.addEventListener('touchmove', onTouchMove, { passive: false })
+    }
     return () => {
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
-      document.removeEventListener('touchmove', onTouchMove)
       document.removeEventListener('touchend', onUp)
+      if (el) {
+        el.removeEventListener('touchstart', onTouchStart)
+        el.removeEventListener('touchmove', onTouchMove)
+      }
     }
   }, [])
+
+  function onTouchStart(e: TouchEvent) {
+    startDrag(e.touches[0].clientX)
+  }
 
   function onTouchMove(e: TouchEvent) {
     if (!dragRef.current) return
@@ -120,10 +132,10 @@ export function WorldMap({ nodes, onOpen }: Props) {
     <Card className="p-3 sm:p-4">
       <div
         className="relative w-full overflow-hidden rounded-md border border-border/60 bg-background/40 text-foreground"
-        style={{ aspectRatio: `${MAP_W} / ${MAP_H}` }}
+        style={{ aspectRatio: `${MAP_W} / ${MAP_H}`, touchAction: 'none' }}
         onClick={() => { if (!dragging.current) setOpenKey(null) }}
         onMouseDown={e => startDrag(e.clientX)}
-        onTouchStart={e => startDrag(e.touches[0].clientX)}
+        ref={mapRef}
       >
         <ComposableMap
           projection="geoEqualEarth"
