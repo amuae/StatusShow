@@ -12,6 +12,9 @@ import { NodeDetail } from './components/NodeDetail'
 import { WorldMap } from './components/WorldMap'
 import { TagFilter } from './components/TagFilter'
 import { RegionFilter } from './components/RegionFilter'
+import { StatusBanner } from './components/StatusBanner'
+import { SummaryCards } from './components/SummaryCards'
+import { Sidebar } from './components/Sidebar'
 import { deriveUsage, displayName } from './utils/derive'
 import type { Sort, View } from './types'
 
@@ -195,55 +198,70 @@ export function App() {
         onSort={setSort}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
-        {!empty && (
-          <RegionFilter
-            regions={regions.list}
-            total={regions.total}
-            active={activeRegion}
-            onChange={setActiveRegion}
-          />
-        )}
-        {!empty && <TagFilter tags={allTags} active={activeTag} onChange={setActiveTag} />}
+      <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex gap-6">
+        {/* Sidebar */}
+        <Sidebar nodes={nodes} />
 
-        {empty && !hasErrors && (
-          <div className="py-24 flex flex-col items-center gap-3 text-muted-foreground">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="text-sm">连接后端中…</span>
-          </div>
-        )}
+        {/* Main content */}
+        <main className="flex-1 min-w-0 space-y-6">
+          {/* Status banner */}
+          {!empty && <StatusBanner nodes={nodes} />}
 
-        {empty && hasErrors && (
-          <div className="py-20 text-center text-muted-foreground">暂无节点</div>
-        )}
+          {/* Summary cards */}
+          {!empty && <SummaryCards nodes={nodes} />}
 
-        {!empty && view === 'cards' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {list.map(n => (
-              <NodeCard key={n.uuid} node={n} />
-            ))}
-          </div>
-        )}
-        {!empty && view === 'table' && <NodeTable nodes={list} onOpen={setSelected} />}
-        {!empty && view === 'map' && <WorldMap nodes={list} onOpen={setSelected} />}
+          {/* Filters */}
+          {!empty && (
+            <div className="flex items-center gap-3">
+              <RegionFilter
+                regions={regions.list}
+                total={regions.total}
+                active={activeRegion}
+                onChange={setActiveRegion}
+              />
+              <TagFilter tags={allTags} active={activeTag} onChange={setActiveTag} />
+            </div>
+          )}
 
-        {hasErrors && (
-          <Alert variant="warning">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>{errors.length} 个后端错误</AlertTitle>
-            <AlertDescription>
-              <ul className="list-disc pl-5 space-y-1 mt-2">
-                {errors.map((e, i) => (
-                  <li key={i}>
-                    <b>{e.source}</b>：
-                    {e.error instanceof Error ? e.error.message : String(e.error)}
-                  </li>
-                ))}
-              </ul>
-            </AlertDescription>
-          </Alert>
-        )}
-      </main>
+          {empty && !hasErrors && (
+            <div className="py-24 flex flex-col items-center gap-3 text-muted-foreground">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="text-sm">连接后端中…</span>
+            </div>
+          )}
+
+          {empty && hasErrors && (
+            <div className="py-20 text-center text-muted-foreground">暂无节点</div>
+          )}
+
+          {!empty && view === 'cards' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {list.map(n => (
+                <NodeCard key={n.uuid} node={n} />
+              ))}
+            </div>
+          )}
+          {!empty && view === 'table' && <NodeTable nodes={list} onOpen={setSelected} />}
+          {!empty && view === 'map' && <WorldMap nodes={list} onOpen={setSelected} />}
+
+          {hasErrors && (
+            <Alert variant="warning">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>{errors.length} 个后端错误</AlertTitle>
+              <AlertDescription>
+                <ul className="list-disc pl-5 space-y-1 mt-2">
+                  {errors.map((e, i) => (
+                    <li key={i}>
+                      <b>{e.source}</b>：
+                      {e.error instanceof Error ? e.error.message : String(e.error)}
+                    </li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
+        </main>
+      </div>
 
       <Footer text={config.footer} />
 
