@@ -212,7 +212,7 @@ export function App() {
           {!empty && (
             <div className="flex flex-col lg:flex-row gap-4 items-stretch">
               {/* Left sidebar cards — hidden on mobile, shown on lg+ */}
-              <div className="hidden lg:flex flex-col gap-4 w-64 shrink-0">
+              <div className="hidden lg:flex flex-col gap-4 w-64 shrink-0 justify-between">
                 <BandwidthGraph nodes={nodes} />
                 <NodeValueCard nodes={nodes} />
               </div>
