@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps'
 import { MapPin } from 'lucide-react'
 import { displayName } from '../utils/derive'
@@ -13,50 +13,128 @@ const MAP_W = 400
 const MAP_H = 220
 const GEO_URL = `${import.meta.env.BASE_URL}world-110m.json`
 
-const GREEN = 'hsl(220 25% 30%)'
+const GREEN = 'hsl(150 20% 40%)'
 const GRAY = 'hsl(220 10% 60%)'
 
-const geoBase = {
-  fill: 'currentColor',
-  fillOpacity: 0.08,
-  stroke: 'currentColor',
-  strokeOpacity: 0.2,
-  strokeWidth: 0.4,
-  outline: 'none',
-}
-const GEO_STYLE = {
-  default: geoBase,
-  hover: { ...geoBase, fillOpacity: 0.12 },
-  pressed: geoBase,
+// ISO A2 code → exact country name in world-110m.json
+const CODE_TO_NAME: Record<string, string> = {
+  AF: 'Afghanistan', AL: 'Albania', DZ: 'Algeria', AO: 'Angola',
+  AR: 'Argentina', AM: 'Armenia', AU: 'Australia', AT: 'Austria',
+  AZ: 'Azerbaijan', BS: 'Bahamas', BD: 'Bangladesh', BY: 'Belarus',
+  BE: 'Belgium', BZ: 'Belize', BJ: 'Benin', BT: 'Bhutan',
+  BO: 'Bolivia', BA: 'Bosnia and Herz.', BW: 'Botswana', BR: 'Brazil',
+  BN: 'Brunei', BG: 'Bulgaria', BF: 'Burkina Faso', BI: 'Burundi',
+  KH: 'Cambodia', CM: 'Cameroon', CA: 'Canada', CF: 'Central African Rep.',
+  TD: 'Chad', CL: 'Chile', CN: 'China', CO: 'Colombia',
+  CG: 'Congo', CR: 'Costa Rica', HR: 'Croatia', CU: 'Cuba',
+  CY: 'Cyprus', CZ: 'Czechia', CI: "Côte d'Ivoire",
+  DK: 'Denmark', DJ: 'Djibouti', DO: 'Dominican Rep.',
+  EC: 'Ecuador', EG: 'Egypt', SV: 'El Salvador', GQ: 'Eq. Guinea',
+  ER: 'Eritrea', EE: 'Estonia', ET: 'Ethiopia', FK: 'Falkland Is.',
+  FJ: 'Fiji', FI: 'Finland', FR: 'France', GF: 'French Guiana',
+  GA: 'Gabon', GM: 'Gambia', GE: 'Georgia', DE: 'Germany',
+  GH: 'Ghana', GR: 'Greece', GL: 'Greenland', GT: 'Guatemala',
+  GN: 'Guinea', GW: 'Guinea-Bissau', GY: 'Guyana', HT: 'Haiti',
+  HN: 'Honduras', HK: 'Hong Kong', HU: 'Hungary', IS: 'Iceland',
+  IN: 'India', ID: 'Indonesia', IR: 'Iran', IQ: 'Iraq',
+  IE: 'Ireland', IL: 'Israel', IT: 'Italy', JM: 'Jamaica',
+  JP: 'Japan', JO: 'Jordan', KZ: 'Kazakhstan', KE: 'Kenya',
+  KR: 'Korea', KP: 'N. Korea', KW: 'Kuwait', KG: 'Kyrgyzstan',
+  LA: 'Lao PDR', LV: 'Latvia', LB: 'Lebanon', LS: 'Lesotho',
+  LR: 'Liberia', LY: 'Libya', LT: 'Lithuania', LU: 'Luxembourg',
+  MK: 'North Macedonia', MG: 'Madagascar', MW: 'Malawi', MY: 'Malaysia',
+  ML: 'Mali', MR: 'Mauritania', MX: 'Mexico', MD: 'Moldova',
+  MN: 'Mongolia', ME: 'Montenegro', MA: 'Morocco', MZ: 'Mozambique',
+  MM: 'Myanmar', NA: 'Namibia', NP: 'Nepal', NL: 'Netherlands',
+  NC: 'New Caledonia', NZ: 'New Zealand', NI: 'Nicaragua', NE: 'Niger',
+  NG: 'Nigeria', NO: 'Norway', OM: 'Oman', PK: 'Pakistan',
+  PS: 'Palestine', PA: 'Panama', PG: 'Papua New Guinea', PY: 'Paraguay',
+  PE: 'Peru', PH: 'Philippines', PL: 'Poland', PT: 'Portugal',
+  PR: 'Puerto Rico', QA: 'Qatar', RO: 'Romania', RU: 'Russia',
+  RW: 'Rwanda', SA: 'Saudi Arabia', SN: 'Senegal', RS: 'Serbia',
+  SL: 'Sierra Leone', SG: 'Singapore', SK: 'Slovakia', SI: 'Slovenia',
+  SO: 'Somalia', ZA: 'South Africa', SS: 'S. Sudan', ES: 'Spain',
+  LK: 'Sri Lanka', SD: 'Sudan', SR: 'Suriname', SE: 'Sweden',
+  CH: 'Switzerland', SY: 'Syria', TW: 'Taiwan', TJ: 'Tajikstan',
+  TZ: 'Tanzania', TH: 'Thailand', TL: 'Timor-Leste', TG: 'Togo',
+  TT: 'Trinidad and Tobago', TN: 'Tunisia', TR: 'Turkey',
+  TM: 'Turkmenistan', UG: 'Uganda', UA: 'Ukraine',
+  AE: 'United Arab Emirates', GB: 'United Kingdom',
+  US: 'United States of America', UY: 'Uruguay', UZ: 'Uzbekistan',
+  VE: 'Venezuela', VN: 'Vietnam', EH: 'W. Sahara',
+  YE: 'Yemen', ZM: 'Zambia', ZW: 'Zimbabwe',
+  PS: 'Palestine', XK: 'Kosovo',
 }
 
 export function CompactMap({ nodes, onOpen }: Props) {
-  const groups = useMemo(() => {
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null)
+
+  const { groups, activeNames } = useMemo(() => {
     const byPos = new Map<string, Node[]>()
+    const names = new Set<string>()
+
     for (const n of nodes.values()) {
       if (n.meta?.hidden) continue
+      // Track active country names
+      const code = n.meta?.region?.trim().toUpperCase()
+      if (code && CODE_TO_NAME[code]) names.add(CODE_TO_NAME[code])
+      // Group markers by position
       if (n.meta?.lat == null || n.meta?.lng == null) continue
       const k = `${n.meta.lat.toFixed(2)},${n.meta.lng.toFixed(2)}`
       const list = byPos.get(k)
       if (list) list.push(n)
       else byPos.set(k, [n])
     }
-    return [...byPos.entries()].map(([key, ns]) => ({
-      key,
-      lat: ns[0].meta.lat!,
-      lng: ns[0].meta.lng!,
-      online: ns.some(n => n.online),
-      count: ns.length,
-      name: ns.map(n => displayName(n)).join(', '),
-    }))
+
+    return {
+      groups: [...byPos.entries()].map(([key, ns]) => ({
+        key,
+        lat: ns[0].meta.lat!,
+        lng: ns[0].meta.lng!,
+        online: ns.some(n => n.online),
+        count: ns.length,
+        name: ns.map(n => displayName(n)).join(', '),
+        uuid: ns[0].uuid,
+      })),
+      activeNames: names,
+    }
   }, [nodes])
 
+  const geoStyle = useMemo(() => {
+    const base = {
+      fill: 'currentColor',
+      stroke: 'currentColor',
+      strokeOpacity: 0.2,
+      strokeWidth: 0.4,
+      outline: 'none',
+    }
+    return {
+      default: (geo: any) => ({
+        ...base,
+        fillOpacity: activeNames.has(geo.properties.name) ? 0.22 : 0.06,
+        fill: activeNames.has(geo.properties.name) ? GREEN : 'currentColor',
+      }),
+      hover: (geo: any) => ({
+        ...base,
+        fillOpacity: activeNames.has(geo.properties.name) ? 0.30 : 0.10,
+        fill: activeNames.has(geo.properties.name) ? GREEN : 'currentColor',
+      }),
+      pressed: (geo: any) => ({
+        ...base,
+        fillOpacity: activeNames.has(geo.properties.name) ? 0.25 : 0.06,
+        fill: activeNames.has(geo.properties.name) ? GREEN : 'currentColor',
+      }),
+    }
+  }, [activeNames])
+
   return (
-    <div className="rounded-lg border bg-card p-3 space-y-2">
+    <div className="card-soft rounded-lg p-3 space-y-2">
       <div className="flex items-center gap-2 text-sm font-medium">
-<MapPin className="h-4 w-4 text-primary/70" />
+        <MapPin className="h-4 w-4 text-primary/70" />
         节点地图
-        <span className="ml-auto text-xs text-muted-foreground font-mono">{groups.reduce((s, g) => s + g.count, 0)} 节点</span>
+        <span className="ml-auto text-xs text-muted-foreground font-mono">
+          {groups.reduce((s, g) => s + g.count, 0)} 节点
+        </span>
       </div>
       <div
         className="relative w-full overflow-hidden rounded-md border border-border/40 text-foreground"
@@ -72,7 +150,11 @@ export function CompactMap({ nodes, onOpen }: Props) {
           <Geographies geography={GEO_URL}>
             {({ geographies }) =>
               geographies.map(geo => (
-                <Geography key={geo.rsmKey} geography={geo} style={GEO_STYLE} />
+                <Geography
+                  key={geo.rsmKey}
+                  geography={geo}
+                  style={geoStyle}
+                />
               ))
             }
           </Geographies>
@@ -91,8 +173,19 @@ export function CompactMap({ nodes, onOpen }: Props) {
                 stroke="white"
                 strokeWidth={0.8}
                 className="cursor-pointer"
-                onClick={() => {
-                  if (g.count === 1) onOpen?.('')
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (g.count === 1) {
+                    onOpen?.(g.uuid)
+                  } else {
+                    // Toggle tooltip
+                    const svg = (e.target as SVGElement).closest('svg')
+                    if (!svg) return
+                    const rect = svg.getBoundingClientRect()
+                    const x = e.clientX - rect.left
+                    const y = e.clientY - rect.top
+                    setTooltip(prev => prev?.text === g.name ? null : { x, y, text: g.name })
+                  }
                 }}
               />
               {g.count > 1 && (
@@ -103,6 +196,20 @@ export function CompactMap({ nodes, onOpen }: Props) {
             </Marker>
           ))}
         </ComposableMap>
+
+        {/* Name tooltip */}
+        {tooltip && (
+          <div
+            className="absolute z-10 px-2 py-1 rounded bg-popover text-popover-foreground text-xs font-medium shadow-md border border-border/50 pointer-events-none whitespace-nowrap"
+            style={{
+              left: tooltip.x,
+              top: tooltip.y - 32,
+              transform: 'translateX(-50%)',
+            }}
+          >
+            {tooltip.text}
+          </div>
+        )}
       </div>
     </div>
   )
