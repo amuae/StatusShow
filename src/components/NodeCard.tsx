@@ -2,15 +2,20 @@ import { ArrowDown, ArrowUp, Clock, type LucideIcon } from 'lucide-react'
 import { Badge } from './ui/badge'
 import { Card } from './ui/card'
 import { CircularGauge } from './CircularGauge'
-import { Flag } from './Flag'
+import { TcpPingChart } from './TcpPingChart'
 import { StatusDot } from './StatusDot'
-import { bytes, pct, relativeAge, uptime } from '../utils/format'
+import { bytes, uptime } from '../utils/format'
 import { cpuLabel, deriveUsage, displayName, distroLogo, osLabel, virtLabel } from '../utils/derive'
 import { cn } from '../utils/cn'
-import type { Node } from '../types'
+import type { Node, TaskQueryResult } from '../types'
 import type { ReactNode } from 'react'
 
-export function NodeCard({ node }: { node: Node }) {
+interface Props {
+  node: Node
+  tcpPingData?: TaskQueryResult[]
+}
+
+export function NodeCard({ node, tcpPingData }: Props) {
   const u = deriveUsage(node)
   const tags = Array.isArray(node.meta?.tags) ? node.meta.tags : []
   const os = osLabel(node)
@@ -26,7 +31,7 @@ export function NodeCard({ node }: { node: Node }) {
           !node.online && 'opacity-60',
         )}
       >
-        {/* Header: status + name + flag */}
+        {/* Header: status + OS logo + name + uptime */}
         <div className="flex items-center gap-2">
           <StatusDot online={node.online} />
           {logo && (
@@ -35,7 +40,12 @@ export function NodeCard({ node }: { node: Node }) {
           <span className="font-semibold flex-1 min-w-0 truncate" title={displayName(node)}>
             {displayName(node)}
           </span>
-          <Flag code={node.meta?.region} className="shrink-0" />
+          {u.uptime != null && u.uptime > 0 && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground font-mono shrink-0">
+              <Clock className="h-3 w-3" />
+              {uptime(u.uptime)}
+            </span>
+          )}
         </div>
 
         {/* OS + Virt */}
@@ -52,8 +62,8 @@ export function NodeCard({ node }: { node: Node }) {
           <CircularGauge value={u.disk} size={60} strokeWidth={5} label="磁盘" sub={u.diskTotal ? `${bytes(u.diskUsed)}` : undefined} />
         </div>
 
-        {/* Network + uptime */}
-        <div className="pt-2.5 border-t border-dashed font-mono text-xs text-muted-foreground space-y-1.5">
+        {/* Network speed */}
+        <div className="border-t border-dashed pt-2 font-mono text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
             <Stat icon={ArrowDown}>{bytes(u.netIn || 0)}/s</Stat>
             <Stat icon={ArrowUp}>{bytes(u.netOut || 0)}/s</Stat>
@@ -63,11 +73,14 @@ export function NodeCard({ node }: { node: Node }) {
               </span>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <Stat icon={Clock}>{uptime(u.uptime)}</Stat>
-            <span className="ml-auto">{relativeAge(u.ts)}</span>
-          </div>
         </div>
+
+        {/* TCP Ping chart */}
+        {tcpPingData && tcpPingData.length > 0 && (
+          <div className="border-t border-dashed pt-2">
+            <TcpPingChart data={tcpPingData} />
+          </div>
+        )}
 
         {/* Tags */}
         {tags.length > 0 && (

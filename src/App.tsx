@@ -3,6 +3,7 @@ import { AlertTriangle, Loader2 } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from './components/ui/alert'
 import { useConfig } from './hooks/useConfig'
 import { useNodes } from './hooks/useNodes'
+import { useAllLatency } from './hooks/useAllLatency'
 import { Background } from './components/Background'
 import { Navbar } from './components/Navbar'
 import { Footer } from './components/Footer'
@@ -13,7 +14,6 @@ import { WorldMap } from './components/WorldMap'
 import { TagFilter } from './components/TagFilter'
 import { RegionFilter } from './components/RegionFilter'
 import { StatusBanner } from './components/StatusBanner'
-import { SummaryCards } from './components/SummaryCards'
 import { Sidebar } from './components/Sidebar'
 import { deriveUsage, displayName } from './utils/derive'
 import type { Sort, View } from './types'
@@ -41,6 +41,9 @@ const num = (v?: number) => (Number.isFinite(v) ? (v as number) : -Infinity)
 export function App() {
   const { config, error: configError } = useConfig()
   const { nodes, errors, pool } = useNodes(config)
+
+  const uuids = useMemo(() => [...nodes.keys()], [nodes])
+  const latency = useAllLatency(pool, uuids)
 
   const [view, setView] = useState<View>(initialView)
   const [sort, setSort] = useState<Sort>(initialSort)
@@ -207,9 +210,6 @@ export function App() {
           {/* Status banner */}
           {!empty && <StatusBanner nodes={nodes} />}
 
-          {/* Summary cards */}
-          {!empty && <SummaryCards nodes={nodes} />}
-
           {/* Filters */}
           {!empty && (
             <div className="flex items-center gap-3">
@@ -237,7 +237,7 @@ export function App() {
           {!empty && view === 'cards' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {list.map(n => (
-                <NodeCard key={n.uuid} node={n} />
+                <NodeCard key={n.uuid} node={n} tcpPingData={latency.tcp.get(n.uuid)} />
               ))}
             </div>
           )}
