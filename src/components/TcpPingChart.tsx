@@ -14,6 +14,31 @@ function extractLatency(result: TaskQueryResult): number | null {
   return null
 }
 
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null
+  return (
+    <div style={{
+      fontSize: 10,
+      background: 'hsl(var(--card))',
+      border: '1px solid hsl(var(--border))',
+      borderRadius: 6,
+      padding: '6px 10px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+    }}>
+      <div style={{ marginBottom: 4, color: 'hsl(var(--muted-foreground))', fontSize: 9 }}>
+        {payload[0]?.payload?.t ? new Date(payload[0].payload.t).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : ''}
+      </div>
+      {payload.map((p: any) => (
+        <div key={p.dataKey} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '1px 0' }}>
+          <span style={{ width: 8, height: 3, borderRadius: 2, background: p.color, display: 'inline-block' }} />
+          <span style={{ flex: 1 }}>{p.dataKey}</span>
+          <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{typeof p.value === 'number' ? `${p.value.toFixed(1)} ms` : '-'}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function TcpPingChart({ data }: Props) {
   const { chartData, sources } = useMemo(() => {
     const cleaned = data
@@ -31,12 +56,16 @@ export function TcpPingChart({ data }: Props) {
     // Auto-detect all sources from data
     const allSources = [...new Set(cleaned.map(d => d.source))].filter(Boolean)
 
-    // Merge same-timestamp entries from different sources
+    // Merge entries by timestamp — each timestamp gets all source values
     const merged = new Map<number, Record<string, number | string>>()
     for (const d of cleaned) {
-      const existing = merged.get(d.t) || { t: d.t, time: new Date(d.t).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) }
-      existing[d.source] = d.latency!
-      merged.set(d.t, existing)
+      const existing = merged.get(d.t)
+      if (existing) {
+        // If same source appears multiple times at same timestamp, keep the latest
+        existing[d.source] = d.latency!
+      } else {
+        merged.set(d.t, { t: d.t, [d.source]: d.latency! })
+      }
     }
 
     return {
@@ -79,24 +108,9 @@ export function TcpPingChart({ data }: Props) {
                 </linearGradient>
               ))}
             </defs>
-            <XAxis dataKey="time" hide />
+            <XAxis hide />
             <YAxis hide domain={['dataMin', 'dataMax']} />
-            <Tooltip
-              contentStyle={{
-                fontSize: 10,
-                background: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: 6,
-                padding: '4px 8px',
-              }}
-              labelFormatter={(_: any, payload: any[]) => {
-                if (payload?.[0]?.payload?.t) {
-                  return new Date(payload[0].payload.t).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-                }
-                return ''
-              }}
-              formatter={(value: number, name: string) => [`${value.toFixed(1)} ms`, name]}
-            />
+            <Tooltip content={<CustomTooltip />} />
             {sources.map((s, i) => (
               <Area
                 key={s}
