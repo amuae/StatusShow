@@ -4,8 +4,8 @@ import type { BackendPool } from '../api/pool'
 import type { TaskQueryResult } from '../types'
 
 const WINDOW_MS = 60 * 60 * 1000
-const REFRESH_MS = 15_000
-const QUERY_TIMEOUT_MS = 15_000
+const REFRESH_MS = 2_000
+const QUERY_TIMEOUT_MS = 5_000
 
 function clean(rows: TaskQueryResult[] | undefined): TaskQueryResult[] {
   return (rows ?? [])
