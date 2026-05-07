@@ -1,17 +1,71 @@
 # StatusShow 自定义功能补丁
 
-> 当官方 StatusShow 更新后，按此文件将两个自定义功能重新加入。
+> 当官方 StatusShow 更新后，按此文件将自定义功能重新加入。
 
 ## 功能概览
 
-1. **卡片累加流量** — NodeCard 网速行右侧显示 `↓XX GB ↑XX GB`
-2. **访客 IP 胶囊** — 页面底部蓝色毛玻璃胶囊，显示访客 IP / 城市 / ISP
+1. **Hudson 风格 UI 改造** — 侧边栏布局、状态横幅、汇总卡片、圆形仪表盘
+2. **卡片累加流量** — NodeCard 网速行右侧显示 `↓XX GB ↑XX GB`
+3. **访客 IP 胶囊** — 页面底部蓝色毛玻璃胶囊，显示访客 IP / 城市 / ISP
 
 ---
 
-## 1. 卡片累加流量 (NodeCard.tsx)
+## 1. Hudson 风格 UI 改造
 
-**文件**: `src/components/NodeCard.tsx`
+### 新增组件文件
+
+以下文件需要创建在 `src/components/` 目录：
+
+- `CircularGauge.tsx` — SVG 圆形仪表盘，用于 CPU/内存/磁盘显示
+- `StatusBanner.tsx` — 顶部状态横幅，显示在线/降级/离线数量 + 进度条
+- `SummaryCards.tsx` — 5 个汇总指标卡（服务器总数、平均CPU、平均内存、总流量、可用率）
+- `NodeValueCard.tsx` — 节点价值估算卡片
+- `CompactMap.tsx` — 侧边栏小地图（基于 react-simple-maps）
+- `BandwidthGraph.tsx` — 实时带宽图表（基于 recharts）
+- `Sidebar.tsx` — 组合侧边栏组件
+
+### App.tsx 布局改造
+
+```tsx
+// 新增 import
+import { StatusBanner } from './components/StatusBanner'
+import { SummaryCards } from './components/SummaryCards'
+import { Sidebar } from './components/Sidebar'
+
+// 主布局从单栏改为侧边栏 + 主内容
+<div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex gap-6">
+  {/* 侧边栏 */}
+  <Sidebar nodes={nodes} />
+  
+  {/* 主内容 */}
+  <main className="flex-1 min-w-0 space-y-6">
+    {!empty && <StatusBanner nodes={nodes} />}
+    {!empty && <SummaryCards nodes={nodes} />}
+    {/* 原有过滤器和节点列表 */}
+  </main>
+</div>
+```
+
+### NodeCard.tsx 改造
+
+用 `CircularGauge` 替代 `Progress` 进度条：
+
+```tsx
+// 替换 import
+import { CircularGauge } from './CircularGauge'
+// 移除 Progress import
+
+// 替换 Metric 组件为圆形仪表盘
+<div className="flex items-center justify-around py-1">
+  <CircularGauge value={u.cpu} size={60} strokeWidth={5} label="CPU" sub={cpu || undefined} />
+  <CircularGauge value={u.mem} size={60} strokeWidth={5} label="内存" sub={u.memTotal ? `${bytes(u.memUsed)}` : undefined} />
+  <CircularGauge value={u.disk} size={60} strokeWidth={5} label="磁盘" sub={u.diskTotal ? `${bytes(u.diskUsed)}` : undefined} />
+</div>
+```
+
+---
+
+## 2. 卡片累加流量 (NodeCard.tsx)
 
 在网络速度那行（`<Stat icon={ArrowDown}>` 和 `<Stat icon={ArrowUp}>` 之后），加入累加流量显示：
 
@@ -45,11 +99,11 @@ total_transmitted?: number
 
 ---
 
-## 2. 访客 IP 胶囊
+## 3. 访客 IP 胶囊
 
 需要修改 3 个文件，全部在项目根目录。
 
-### 2a. index.html — 异步注入入口
+### 3a. index.html — 异步注入入口
 
 在 `<body>` 末尾、`</body>` 之前，加入以下 inline snippet。**不要**在 `<head>` 中加 `<link>`，不要在 `<body>` 中加 `<script src="custom.js">`，全部由这段代码动态注入：
 
@@ -70,7 +124,7 @@ total_transmitted?: number
     </script>
 ```
 
-### 2b. custom.js — 胶囊逻辑
+### 3b. custom.js — 胶囊逻辑
 
 ```js
 // 访客信息胶囊 — 完全独立，不影响页面加载
@@ -157,7 +211,7 @@ total_transmitted?: number
 })()
 ```
 
-### 2c. custom.css — 胶囊样式
+### 3c. custom.css — 胶囊样式
 
 ```css
 .ng-visitor-capsule {
@@ -225,3 +279,5 @@ total_transmitted?: number
 - **不要阻塞页面加载**: CSS 和 JS 必须通过 inline snippet 动态注入，不要放在 `<head>` 或 `<body>` 的静态标签中
 - **custom.css 和 custom.js 放在项目根目录**（和 index.html 同级）
 - **版本号**: 每次修改后递增 `?v=N` 缓存破坏参数
+- **侧边栏响应式**: 侧边栏仅在 lg 以上屏幕显示（`hidden lg:block`），移动端自动隐藏
+- **汇总卡片响应式**: 5 列网格在小屏幕可能需要调整为 2-3 列
