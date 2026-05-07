@@ -15,6 +15,7 @@ import { TagFilter } from './components/TagFilter'
 import { RegionFilter } from './components/RegionFilter'
 import { StatusBanner } from './components/StatusBanner'
 import { Sidebar } from './components/Sidebar'
+import { CompactMap } from './components/CompactMap'
 import { deriveUsage, displayName } from './utils/derive'
 import type { Sort, View } from './types'
 
@@ -208,6 +209,13 @@ export function App() {
         <main className="flex-1 min-w-0 space-y-6">
           {/* Status banner */}
           {!empty && <StatusBanner nodes={nodes} />}
+
+          {/* Mobile world map — hidden on lg+ where sidebar shows it */}
+          {!empty && (
+            <div className="lg:hidden">
+              <CompactMap nodes={nodes} />
+            </div>
+          )}
 
           {/* Filters */}
           {!empty && (
