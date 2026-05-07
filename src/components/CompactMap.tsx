@@ -62,8 +62,7 @@ const CODE_TO_NAME: Record<string, string> = {
   AE: 'United Arab Emirates', GB: 'United Kingdom',
   US: 'United States of America', UY: 'Uruguay', UZ: 'Uzbekistan',
   VE: 'Venezuela', VN: 'Vietnam', EH: 'W. Sahara',
-  YE: 'Yemen', ZM: 'Zambia', ZW: 'Zimbabwe',
-  PS: 'Palestine', XK: 'Kosovo',
+  YE: 'Yemen', ZM: 'Zambia', ZW: 'Zimbabwe', XK: 'Kosovo',
 }
 
 export function CompactMap({ nodes, onOpen }: Props) {
@@ -75,10 +74,8 @@ export function CompactMap({ nodes, onOpen }: Props) {
 
     for (const n of nodes.values()) {
       if (n.meta?.hidden) continue
-      // Track active country names
       const code = n.meta?.region?.trim().toUpperCase()
       if (code && CODE_TO_NAME[code]) names.add(CODE_TO_NAME[code])
-      // Group markers by position
       if (n.meta?.lat == null || n.meta?.lng == null) continue
       const k = `${n.meta.lat.toFixed(2)},${n.meta.lng.toFixed(2)}`
       const list = byPos.get(k)
@@ -99,33 +96,6 @@ export function CompactMap({ nodes, onOpen }: Props) {
       activeNames: names,
     }
   }, [nodes])
-
-  const geoStyle = useMemo(() => {
-    const base = {
-      fill: 'currentColor',
-      stroke: 'currentColor',
-      strokeOpacity: 0.2,
-      strokeWidth: 0.4,
-      outline: 'none',
-    }
-    return {
-      default: (geo: any) => ({
-        ...base,
-        fillOpacity: activeNames.has(geo.properties.name) ? 0.22 : 0.06,
-        fill: activeNames.has(geo.properties.name) ? GREEN : 'currentColor',
-      }),
-      hover: (geo: any) => ({
-        ...base,
-        fillOpacity: activeNames.has(geo.properties.name) ? 0.30 : 0.10,
-        fill: activeNames.has(geo.properties.name) ? GREEN : 'currentColor',
-      }),
-      pressed: (geo: any) => ({
-        ...base,
-        fillOpacity: activeNames.has(geo.properties.name) ? 0.25 : 0.06,
-        fill: activeNames.has(geo.properties.name) ? GREEN : 'currentColor',
-      }),
-    }
-  }, [activeNames])
 
   return (
     <div className="card-soft rounded-lg p-3 space-y-2">
@@ -149,13 +119,25 @@ export function CompactMap({ nodes, onOpen }: Props) {
         >
           <Geographies geography={GEO_URL}>
             {({ geographies }) =>
-              geographies.map(geo => (
-                <Geography
-                  key={geo.rsmKey}
-                  geography={geo}
-                  style={geoStyle}
-                />
-              ))
+              geographies.map(geo => {
+                const isActive = activeNames.has(geo.properties.name)
+                return (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    fill={isActive ? GREEN : 'currentColor'}
+                    fillOpacity={isActive ? 0.22 : 0.06}
+                    stroke="currentColor"
+                    strokeOpacity={0.2}
+                    strokeWidth={0.4}
+                    style={{
+                      default: { outline: 'none' },
+                      hover: { outline: 'none', fillOpacity: isActive ? 0.30 : 0.10 },
+                      pressed: { outline: 'none' },
+                    }}
+                  />
+                )
+              })
             }
           </Geographies>
 
@@ -178,7 +160,6 @@ export function CompactMap({ nodes, onOpen }: Props) {
                   if (g.count === 1) {
                     onOpen?.(g.uuid)
                   } else {
-                    // Toggle tooltip
                     const svg = (e.target as SVGElement).closest('svg')
                     if (!svg) return
                     const rect = svg.getBoundingClientRect()
