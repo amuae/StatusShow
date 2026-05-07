@@ -79,15 +79,15 @@
     radial-gradient(circle 1.8px at 82% 48%, hsl(36 18% 78% / 0.45) 0%, transparent 100%),
     radial-gradient(circle 2px at 8% 82%, hsl(36 18% 82% / 0.42) 0%, transparent 100%),
     radial-gradient(circle 1.5px at 50% 50%, hsl(36 18% 80% / 0.38) 0%, transparent 100%),
-    /* 远山层叠 — 三重覆盖全屏 */
-    radial-gradient(ellipse 120% 50% at 10% 100%, hsl(220 18% 68% / 0.20), transparent 55%),
-    radial-gradient(ellipse 120% 45% at 90% 100%, hsl(220 15% 62% / 0.16), transparent 55%),
-    radial-gradient(ellipse 100% 40% at 50% 100%, hsl(220 12% 72% / 0.12), transparent 50%),
-    /* 墨韵晕染 */
-    radial-gradient(ellipse 60% 50% at 5% 8%, hsl(220 12% 70% / 0.10), transparent 60%),
-    radial-gradient(ellipse 50% 40% at 95% 5%, hsl(220 10% 75% / 0.08), transparent 60%),
-    /* 中部云雾 — 填补中间空白 */
-    radial-gradient(ellipse 80% 30% at 50% 60%, hsl(220 10% 78% / 0.06), transparent 60%);
+    /* 远山层叠 — 底部 */
+    radial-gradient(ellipse 120% 40% at 10% 100%, hsl(220 18% 68% / 0.20), transparent 50%),
+    radial-gradient(ellipse 120% 35% at 90% 100%, hsl(220 15% 62% / 0.16), transparent 50%),
+    radial-gradient(ellipse 100% 30% at 50% 100%, hsl(220 12% 72% / 0.12), transparent 45%),
+    /* 云雾 — 上1/3 */
+    radial-gradient(ellipse 80% 20% at 20% 15%, hsl(220 10% 75% / 0.10), transparent 60%),
+    radial-gradient(ellipse 70% 15% at 80% 10%, hsl(220 8% 78% / 0.08), transparent 60%),
+    /* 中部淡墨 */
+    radial-gradient(ellipse 60% 20% at 50% 45%, hsl(220 10% 80% / 0.05), transparent 60%);
   background-size: 180px 180px, 220px 220px, 160px 160px, 200px 200px, 240px 240px, 200px 200px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
   background-attachment: fixed;
 }
@@ -102,15 +102,15 @@
     radial-gradient(circle 1.8px at 82% 48%, hsl(36 12% 33% / 0.45) 0%, transparent 100%),
     radial-gradient(circle 2px at 8% 82%, hsl(36 12% 35% / 0.42) 0%, transparent 100%),
     radial-gradient(circle 1.5px at 50% 50%, hsl(36 12% 32% / 0.35) 0%, transparent 100%),
-    /* 夜墨山水 — 三重覆盖 */
-    radial-gradient(ellipse 120% 50% at 10% 100%, hsl(220 20% 14% / 0.60), transparent 55%),
-    radial-gradient(ellipse 120% 45% at 90% 100%, hsl(220 18% 12% / 0.45), transparent 55%),
-    radial-gradient(ellipse 100% 40% at 50% 100%, hsl(220 15% 16% / 0.35), transparent 50%),
-    /* 墨韵 */
-    radial-gradient(ellipse 60% 50% at 5% 8%, hsl(220 15% 18% / 0.25), transparent 60%),
-    radial-gradient(ellipse 50% 40% at 95% 5%, hsl(220 12% 20% / 0.20), transparent 60%),
-    /* 中部云雾 */
-    radial-gradient(ellipse 80% 30% at 50% 60%, hsl(220 12% 18% / 0.15), transparent 60%);
+    /* 夜墨山水 — 底部 */
+    radial-gradient(ellipse 120% 40% at 10% 100%, hsl(220 20% 14% / 0.60), transparent 50%),
+    radial-gradient(ellipse 120% 35% at 90% 100%, hsl(220 18% 12% / 0.45), transparent 50%),
+    radial-gradient(ellipse 100% 30% at 50% 100%, hsl(220 15% 16% / 0.35), transparent 45%),
+    /* 云雾 — 上1/3 */
+    radial-gradient(ellipse 80% 20% at 20% 15%, hsl(220 12% 18% / 0.20), transparent 60%),
+    radial-gradient(ellipse 70% 15% at 80% 10%, hsl(220 10% 20% / 0.15), transparent 60%),
+    /* 中部淡墨 */
+    radial-gradient(ellipse 60% 20% at 50% 45%, hsl(220 12% 20% / 0.10), transparent 60%);
   background-size: 180px 180px, 220px 220px, 160px 160px, 200px 200px, 240px 240px, 200px 200px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
   background-attachment: fixed;
 }

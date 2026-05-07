@@ -11,6 +11,8 @@ import { NodeCard } from './components/NodeCard'
 import { NodeTable } from './components/NodeTable'
 import { NodeDetail } from './components/NodeDetail'
 import { WorldMap } from './components/WorldMap'
+import { BandwidthGraph } from './components/BandwidthGraph'
+import { NodeValueCard } from './components/NodeValueCard'
 import { TagFilter } from './components/TagFilter'
 import { RegionFilter } from './components/RegionFilter'
 import { StatusBanner } from './components/StatusBanner'
@@ -206,8 +208,20 @@ export function App() {
           {/* Status banner */}
           {!empty && <StatusBanner nodes={nodes} />}
 
-          {/* World map */}
-          {!empty && <WorldMap nodes={list} onOpen={setSelected} />}
+          {/* Map area: sidebar cards (PC) + world map */}
+          {!empty && (
+            <div className="flex flex-col lg:flex-row gap-4">
+              {/* Left sidebar cards — hidden on mobile, shown on lg+ */}
+              <div className="hidden lg:flex flex-col gap-4 w-64 shrink-0">
+                <BandwidthGraph nodes={nodes} />
+                <NodeValueCard nodes={nodes} />
+              </div>
+              {/* World map — full width on mobile, flex-1 on PC */}
+              <div className="flex-1 min-w-0">
+                <WorldMap nodes={list} onOpen={setSelected} />
+              </div>
+            </div>
+          )}
 
           {/* Filters */}
           {!empty && (
