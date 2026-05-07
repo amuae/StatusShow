@@ -14,7 +14,7 @@ import { WorldMap } from './components/WorldMap'
 import { TagFilter } from './components/TagFilter'
 import { RegionFilter } from './components/RegionFilter'
 import { StatusBanner } from './components/StatusBanner'
-import { Sidebar } from './components/Sidebar'
+
 
 import { deriveUsage, displayName } from './utils/derive'
 import type { Sort, View } from './types'
@@ -201,21 +201,13 @@ export function App() {
         onSort={setSort}
       />
 
-      <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex gap-6">
-        {/* Sidebar */}
-        <Sidebar nodes={nodes} />
-
-        {/* Main content */}
-        <main className="flex-1 min-w-0 space-y-6">
+      <div className="flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <main className="space-y-6">
           {/* Status banner */}
           {!empty && <StatusBanner nodes={nodes} />}
 
-          {/* Mobile world map — hidden on lg+ where sidebar shows it */}
-          {!empty && (
-            <div className="lg:hidden">
-              <WorldMap nodes={list} onOpen={setSelected} />
-            </div>
-          )}
+          {/* World map */}
+          {!empty && <WorldMap nodes={list} onOpen={setSelected} />}
 
           {/* Filters */}
           {!empty && (

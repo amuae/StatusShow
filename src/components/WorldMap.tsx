@@ -41,58 +41,6 @@ export function WorldMap({ nodes, onOpen }: Props) {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const [renderKey, setRenderKey] = useState<string | null>(null)
   const closeTimer = useRef<number | null>(null)
-  const [rotation, setRotation] = useState(0)
-  const dragRef = useRef<{ startX: number; startRot: number; moved: boolean } | null>(null)
-  const dragging = useRef(false)
-  const mapRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function onMove(e: MouseEvent) {
-      if (!dragRef.current) return
-      const dx = e.clientX - dragRef.current.startX
-      if (Math.abs(dx) > 3) dragRef.current.moved = true
-      setRotation(dragRef.current.startRot + dx * 0.15)
-    }
-    function onUp() {
-      if (dragRef.current?.moved) dragging.current = true
-      dragRef.current = null
-      // Reset dragging flag after click events have fired
-      setTimeout(() => { dragging.current = false }, 0)
-    }
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
-    document.addEventListener('touchend', onUp)
-    const el = mapRef.current
-    if (el) {
-      el.addEventListener('touchstart', onTouchStart, { passive: true })
-      el.addEventListener('touchmove', onTouchMove, { passive: false })
-    }
-    return () => {
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
-      document.removeEventListener('touchend', onUp)
-      if (el) {
-        el.removeEventListener('touchstart', onTouchStart)
-        el.removeEventListener('touchmove', onTouchMove)
-      }
-    }
-  }, [])
-
-  function onTouchStart(e: TouchEvent) {
-    startDrag(e.touches[0].clientX)
-  }
-
-  function onTouchMove(e: TouchEvent) {
-    if (!dragRef.current) return
-    e.preventDefault()
-    const dx = e.touches[0].clientX - dragRef.current.startX
-    if (Math.abs(dx) > 3) dragRef.current.moved = true
-    setRotation(dragRef.current.startRot + dx * 0.15)
-  }
-
-  function startDrag(clientX: number) {
-    dragRef.current = { startX: clientX, startRot: rotation, moved: false }
-  }
 
   useEffect(() => {
     if (openKey) setRenderKey(openKey)
@@ -132,14 +80,13 @@ export function WorldMap({ nodes, onOpen }: Props) {
     <Card className="p-3 sm:p-4">
       <div
         className="relative w-full overflow-hidden rounded-md border border-border/60 bg-background/40 text-foreground"
-        style={{ aspectRatio: `${MAP_W} / ${MAP_H}`, touchAction: 'none' }}
-        onClick={() => { if (!dragging.current) setOpenKey(null) }}
-        onMouseDown={e => startDrag(e.clientX)}
-        ref={mapRef}
+        style={{ aspectRatio: `${MAP_W} / ${MAP_H}` }}
+        onClick={() => setOpenKey(null)}
+        
       >
         <ComposableMap
           projection="geoEqualEarth"
-          projectionConfig={{ scale: 175, rotation: [rotation, 0, 0] }}
+          projectionConfig={{ scale: 175 }}
           width={MAP_W}
           height={MAP_H}
           style={{ width: '100%', height: '100%' }}
@@ -189,7 +136,6 @@ export function WorldMap({ nodes, onOpen }: Props) {
                 onMouseLeave={scheduleClose}
                 onClick={(e: any) => {
                   e.stopPropagation?.()
-                  if (dragging.current) return
                   if (!isCluster) onOpen?.(node.uuid)
                 }}
                 style={CURSOR}
