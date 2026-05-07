@@ -40,7 +40,7 @@ export function StatusBanner({ nodes }: Props) {
       </div>
       <div className="flex items-center gap-2 sm:gap-3 ml-auto text-[11px] sm:text-xs font-mono">
         <span className="flex items-center gap-1 whitespace-nowrap">
-          <span className="w-2 h-2 rounded-full bg-primary/60" />
+          <span className="w-2 h-2 rounded-full bg-[#3a6b4a]" />
           {online}
         </span>
         {degraded > 0 && (

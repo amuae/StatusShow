@@ -213,7 +213,7 @@ export function App() {
           {/* Mobile world map — hidden on lg+ where sidebar shows it */}
           {!empty && (
             <div className="lg:hidden">
-              <CompactMap nodes={nodes} />
+              <CompactMap nodes={nodes} onOpen={setSelected} />
             </div>
           )}
 
