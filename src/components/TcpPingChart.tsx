@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef } from 'react'
 import { AreaChart, Area, ResponsiveContainer, YAxis, XAxis } from 'recharts'
 import type { TaskQueryResult } from '../types'
 
@@ -19,8 +19,9 @@ const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899'
 
 export function TcpPingChart({ data }: Props) {
   const [hovered, setHovered] = useState<{ t: number; items: { name: string; color: string; value: number }[] } | null>(null)
+  const chartRef = useRef<HTMLDivElement>(null)
 
-  const { chartData, sources } = useMemo(() => {
+  const { chartData, sources, byTime } = useMemo(() => {
     const cleaned = data
       .filter(r => r.success)
       .map(r => ({
@@ -32,7 +33,7 @@ export function TcpPingChart({ data }: Props) {
       .filter(d => d.latency != null && d.latency > 0)
       .sort((a, b) => a.t - b.t)
 
-    if (cleaned.length < 2) return { chartData: [], sources: [] }
+    if (cleaned.length < 2) return { chartData: [], sources: [], byTime: new Map() }
 
     const allSources = [...new Set(cleaned.map(d => d.source))].filter(Boolean)
 
@@ -43,10 +44,9 @@ export function TcpPingChart({ data }: Props) {
       entry[d.source] = d.latency!
     }
 
-    return {
-      chartData: [...merged.values()].sort((a, b) => (a.t as number) - (b.t as number)),
-      sources: allSources,
-    }
+    const sorted = [...merged.values()].sort((a, b) => (a.t as number) - (b.t as number))
+
+    return { chartData: sorted, sources: allSources, byTime: sorted }
   }, [data])
 
   if (chartData.length < 2) {
@@ -55,6 +55,23 @@ export function TcpPingChart({ data }: Props) {
         暂无 TCPing 数据
       </div>
     )
+  }
+
+  // Find closest data point from touch X coordinate
+  function handleTouch(e: React.TouchEvent) {
+    e.stopPropagation() // prevent card click
+    const rect = chartRef.current?.getBoundingClientRect()
+    if (!rect || !chartData.length) return
+    const touch = e.touches[0]
+    const x = touch.clientX - rect.left
+    const ratio = x / rect.width
+    const idx = Math.round(ratio * (chartData.length - 1))
+    const point = chartData[Math.max(0, Math.min(idx, chartData.length - 1))]
+    if (!point) return
+    const items = sources
+      .filter(s => point[s] != null)
+      .map((s, i) => ({ name: s, color: COLORS[i % COLORS.length], value: point[s] as number }))
+    setHovered({ t: point.t as number, items })
   }
 
   return (
@@ -71,8 +88,11 @@ export function TcpPingChart({ data }: Props) {
         </div>
       </div>
       <div
+        ref={chartRef}
         className="h-12 relative"
         onMouseLeave={() => setHovered(null)}
+        onTouchStart={handleTouch}
+        onTouchMove={handleTouch}
         onTouchEnd={() => setHovered(null)}
       >
         <ResponsiveContainer width="100%" height="100%">
@@ -118,7 +138,6 @@ export function TcpPingChart({ data }: Props) {
           </AreaChart>
         </ResponsiveContainer>
 
-        {/* Tooltip — only visible when hovering */}
         {hovered && (
           <div className="absolute left-2 top-0 z-10 text-[10px] rounded-md border bg-popover px-2 py-1.5 shadow-md pointer-events-none">
             <div className="mb-0.5 opacity-60 text-[9px]">
