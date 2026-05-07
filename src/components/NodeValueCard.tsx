@@ -22,9 +22,9 @@ export function NodeValueCard({ nodes }: Props) {
   if (counted === 0) return null
 
   return (
-    <div className="rounded-lg border bg-card p-4 space-y-3">
+    <div className="card-soft rounded-lg p-4 space-y-3">
       <div className="flex items-center gap-2 text-sm font-medium">
-        <DollarSign className="h-4 w-4 text-yellow-500" />
+        <DollarSign className="h-4 w-4 text-seal" />
         节点价值（估算）
       </div>
       <div className="space-y-2">

@@ -16,7 +16,7 @@ export function Footer({ text }: { text?: string }) {
   const outdated = latest != null && latest !== __APP_VERSION__
 
   return (
-    <footer className="border-t">
+    <footer className="border-t border-border/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-end gap-4 text-xs text-muted-foreground">
         <a href={REPO} target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">
           {text || 'Powered by NodeGet'}

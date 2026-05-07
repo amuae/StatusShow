@@ -235,8 +235,10 @@ export function App() {
 
           {!empty && view === 'cards' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {list.map(n => (
-                <NodeCard key={n.uuid} node={n} tcpPingData={latency.get(n.uuid)} />
+              {list.map((n, i) => (
+                <div key={n.uuid} className={`animate-ink-in ink-delay-${Math.min(i + 1, 6)}`}>
+                  <NodeCard node={n} tcpPingData={latency.get(n.uuid)} />
+                </div>
               ))}
             </div>
           )}

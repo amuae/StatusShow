@@ -13,8 +13,8 @@ const MAP_W = 400
 const MAP_H = 220
 const GEO_URL = `${import.meta.env.BASE_URL}world-110m.json`
 
-const GREEN = 'rgb(16 185 129)'
-const GRAY = 'rgb(148 163 184)'
+const GREEN = 'hsl(220 25% 30%)'
+const GRAY = 'hsl(220 10% 60%)'
 
 const geoBase = {
   fill: 'currentColor',
@@ -54,7 +54,7 @@ export function CompactMap({ nodes, onOpen }: Props) {
   return (
     <div className="rounded-lg border bg-card p-3 space-y-2">
       <div className="flex items-center gap-2 text-sm font-medium">
-        <MapPin className="h-4 w-4 text-blue-500" />
+<MapPin className="h-4 w-4 text-primary/70" />
         节点地图
         <span className="ml-auto text-xs text-muted-foreground font-mono">{groups.reduce((s, g) => s + g.count, 0)} 节点</span>
       </div>

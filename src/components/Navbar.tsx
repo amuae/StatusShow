@@ -41,19 +41,18 @@ export function Navbar({ siteName, logo, query, onQuery, view, onView, sort, onS
   return (
     <header
       ref={headerRef}
-      className={`sticky top-0 z-10 transition-[background-color,backdrop-filter,border-color] duration-200 ${
+      className={`sticky top-0 z-10 transition-[background-color,backdrop-filter,border-color] duration-300 ${
         stuck
-          ? 'border-b border-border/40 backdrop-blur bg-background/70'
+          ? 'border-b border-border/30 backdrop-blur-xl bg-background/80 shadow-sm'
           : 'border-b border-transparent'
-      }`}
-    >
+      }`}>
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 px-4 sm:px-6 py-3">
         <a
           href="./"
           className="flex items-center gap-2 min-w-0 shrink-0 hover:opacity-80 transition-opacity"
         >
           {logo && <img src={logo} alt="" className="w-6 h-6 rounded shrink-0" />}
-          <span className="font-semibold tracking-wide truncate">{siteName}</span>
+          <span className="font-semibold tracking-widest truncate" style={{ fontFamily: "'LXGW WenKai', serif" }}>{siteName}</span>
         </a>
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           <div className="hidden sm:block">

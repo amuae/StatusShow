@@ -45,17 +45,17 @@ export function BandwidthGraph({ nodes }: Props) {
   }, [nodes])
 
   return (
-    <div className="rounded-lg border bg-card p-3 space-y-2">
+    <div className="card-soft rounded-lg p-4 space-y-3">
       <div className="flex items-center gap-2 text-sm font-medium">
-        <ArrowDown className="h-4 w-4 text-emerald-500" />
+        <ArrowDown className="h-4 w-4 text-primary/70" />
         实时带宽
       </div>
       <div className="flex items-center gap-4 text-xs font-mono">
-        <span className="flex items-center gap-1 text-emerald-500">
+        <span className="flex items-center gap-1 text-primary/70">
           <ArrowDown className="h-3 w-3" />
           {bytes(currentIn)}/s
         </span>
-        <span className="flex items-center gap-1 text-blue-500">
+        <span className="flex items-center gap-1 text-muted-foreground">
           <ArrowUp className="h-3 w-3" />
           {bytes(currentOut)}/s
         </span>
@@ -66,12 +66,12 @@ export function BandwidthGraph({ nodes }: Props) {
             <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="bwIn" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                  <stop offset="0%" stopColor="hsl(220 25% 30%)" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="hsl(220 25% 30%)" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="bwOut" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                  <stop offset="0%" stopColor="hsl(220 15% 50%)" stopOpacity={0.25} />
+                  <stop offset="100%" stopColor="hsl(220 15% 50%)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis dataKey="time" hide />
@@ -85,8 +85,8 @@ export function BandwidthGraph({ nodes }: Props) {
                 }}
                 formatter={(value: number) => `${bytes(value)}/s`}
               />
-              <Area type="monotone" dataKey="in" stroke="#10b981" strokeWidth={1.5} fill="url(#bwIn)" name="下载" />
-              <Area type="monotone" dataKey="out" stroke="#3b82f6" strokeWidth={1.5} fill="url(#bwOut)" name="上传" />
+              <Area type="monotone" dataKey="in" stroke="hsl(220 25% 30%)" strokeWidth={1.5} fill="url(#bwIn)" name="下载" />
+              <Area type="monotone" dataKey="out" stroke="hsl(220 15% 50%)" strokeWidth={1.5} fill="url(#bwOut)" name="上传" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

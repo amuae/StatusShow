@@ -27,8 +27,8 @@ export function NodeCard({ node, tcpPingData }: Props) {
     <a href={`#${encodeURIComponent(node.uuid)}`} className="block">
       <Card
         className={cn(
-          'p-4 transition hover:border-primary/50 hover:shadow-md flex flex-col gap-3',
-          !node.online && 'opacity-60',
+          'p-4 transition-all duration-300 flex flex-col gap-3',
+          !node.online && 'opacity-50 grayscale',
         )}
       >
         {/* Header: status + country flag + name + uptime */}
@@ -62,13 +62,13 @@ export function NodeCard({ node, tcpPingData }: Props) {
 
         {/* TCP Ping chart - before network stats */}
         {tcpPingData && tcpPingData.length > 0 && (
-          <div className="border-t border-dashed pt-2">
+          <div className="border-t border-border/40 pt-2">
             <TcpPingChart data={tcpPingData} />
           </div>
         )}
 
         {/* Network speed + traffic - bottom, same row */}
-        <div className="border-t border-dashed pt-2 font-mono text-xs text-muted-foreground">
+        <div className="border-t border-border/40 pt-2 font-mono text-xs text-muted-foreground">
           <div className="flex items-center">
             <div className="flex items-center gap-3">
               <Stat icon={ArrowDown}>{bytes(u.netIn || 0)}/s</Stat>

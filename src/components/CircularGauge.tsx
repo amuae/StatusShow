@@ -10,17 +10,17 @@ interface Props {
 }
 
 function gaugeColor(value: number): string {
-  if (value >= 90) return 'text-red-500'
-  if (value >= 70) return 'text-orange-500'
-  if (value >= 50) return 'text-yellow-500'
-  return 'text-emerald-500'
+  if (value >= 90) return 'text-seal'
+  if (value >= 70) return 'text-amber-700 dark:text-amber-500'
+  if (value >= 50) return 'text-amber-600 dark:text-amber-400'
+  return 'text-primary/70'
 }
 
 function gaugeStroke(value: number): string {
-  if (value >= 90) return '#ef4444'
-  if (value >= 70) return '#f97316'
-  if (value >= 50) return '#eab308'
-  return '#10b981'
+  if (value >= 90) return 'hsl(0 68% 42%)'
+  if (value >= 70) return 'hsl(35 60% 45%)'
+  if (value >= 50) return 'hsl(38 45% 48%)'
+  return 'hsl(220 25% 35%)'
 }
 
 export function CircularGauge({ value, size = 64, strokeWidth = 5, label, sub, className }: Props) {

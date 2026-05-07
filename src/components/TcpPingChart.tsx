@@ -15,7 +15,7 @@ function extractLatency(result: TaskQueryResult): number | null {
 }
 
 const BUCKET_MS = 10_000
-const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899']
+const COLORS = ['#3d3a5c', '#5c6b7a', '#7a6b5c', '#5c4a3a', '#4a5c6b', '#6b5c7a']
 
 export function TcpPingChart({ data }: Props) {
   const [hovered, setHovered] = useState<{ t: number; items: { name: string; color: string; value: number }[] } | null>(null)
