@@ -260,7 +260,7 @@ function ClusterList({
             onClick={() => onPick(n.uuid)}
             className="w-full flex items-center gap-2 px-2 py-1 hover:bg-accent text-left"
           >
-            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${n.online ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${n.online ? 'bg-[#3a6b4a]' : 'bg-gray-400'}`} />
             <span className="truncate flex-1">{displayName(n)}</span>
             {n.meta?.region && (
               <span className="text-[10px] text-muted-foreground shrink-0">{n.meta.region}</span>
