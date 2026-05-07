@@ -10,7 +10,7 @@ interface Props {
 }
 
 const MAP_W = 900
-const MAP_H = 460
+const MAP_H = 350
 const GEO_URL = `${import.meta.env.BASE_URL}world-110m.json`
 
 const GREEN = 'rgb(16 185 129)'
