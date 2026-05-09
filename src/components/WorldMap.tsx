@@ -281,16 +281,11 @@ function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
   const entries = [...byCountry.entries()].filter(([a2]) => knownA2.has(a2))
   const max = entries.reduce((m, [, e]) => Math.max(m, e.online + e.offline), 0)
 
-  /* 直接在 data 里设颜色，不用 visualMap（visualMap 会覆盖所有国家颜色） */
-  const data = entries.map(([a2, e]) => {
-    const v = e.online + e.offline
-    const t = max > 0 ? v / max : 0
-    return {
-      name: a2,
-      value: v,
-      itemStyle: { areaColor: heatColor(0.35 + 0.65 * t, dark) },
-    }
-  })
+  /* data 里只放有节点的国家，value = 节点数 */
+  const data = entries.map(([a2, e]) => ({
+    name: a2,
+    value: e.online + e.offline,
+  }))
 
   const tinyMarkers = entries
     .map(([a2, e]) => {
@@ -314,19 +309,29 @@ function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
     })
     .filter((x): x is NonNullable<typeof x> => x != null)
 
-  /* ── 亮色 / 暗色主题色 — 全部使用逗号分隔格式 ─── */
-  const emptyArea = dark ? 'hsla(36,10%,22%,0.50)' : 'hsla(36,12%,82%,0.60)'
-  const baseBorder = dark ? 'hsla(36,18%,72%,0.35)' : 'hsla(36,18%,60%,0.40)'
+  /* ── 主题色 — hex/rgba 格式（ECharts 兼容） ─── */
+  const emptyArea = dark ? 'rgba(39,43,53,0.85)' : 'rgba(220,215,205,0.85)'
+  const baseBorder = dark ? 'rgba(100,110,130,0.35)' : 'rgba(160,150,135,0.40)'
   const emphasisArea = dark ? '#5a8a6c' : '#3a6b4a'
-  const tooltipBg = dark ? 'hsla(220,22%,10%,0.94)' : 'hsla(36,30%,96%,0.96)'
-  const tooltipBorder = dark ? 'hsla(220,14%,22%,0.6)' : 'hsla(36,18%,80%,0.7)'
-  const tooltipText = dark ? 'hsl(36,15%,88%)' : 'hsl(220,25%,12%)'
-  const tooltipMuted = dark ? 'hsl(36,10%,55%)' : 'hsl(220,12%,40%)'
+  const tooltipBg = dark ? 'rgba(18,20,28,0.94)' : 'rgba(250,247,240,0.96)'
+  const tooltipBorder = dark ? 'rgba(60,65,80,0.6)' : 'rgba(180,170,155,0.7)'
+  const tooltipText = dark ? '#d4cec4' : '#2c2820'
+  const tooltipMuted = dark ? '#8a8278' : '#6b6560'
   const onlineColor = '#3a6b4a'
 
   return {
     backgroundColor: 'transparent',
-    /* 不用 visualMap — 颜色直接设在 data itemStyle 里 */
+    /* pieces visualMap：只映射 value >= 1 的国家 */
+    visualMap: {
+      type: 'piecewise' as const,
+      show: false,
+      pieces: [
+        { min: 1, color: '#8eb296', label: '1' },
+        ...(max >= 2 ? [{ min: 2, color: '#5a8a6c', label: '2+' }] : []),
+        ...(max >= 3 ? [{ min: 3, color: '#3a6b4a', label: '3+' }] : []),
+      ],
+      outOfRange: { color: emptyArea },
+    },
     tooltip: {
       trigger: 'item' as const,
       backgroundColor: tooltipBg,
@@ -355,7 +360,7 @@ function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
         layoutCenter: ['50%', '50%'] as [string, string],
         layoutSize: '100%',
         selectedMode: false,
-        /* 无节点国家 — 深色/灰色底 */
+        /* 无节点国家默认色 */
         itemStyle: {
           areaColor: emptyArea,
           borderColor: baseBorder,
