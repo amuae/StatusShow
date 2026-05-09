@@ -190,17 +190,20 @@ export function WorldMap({ nodes, onOpen }: Props) {
 
   useEffect(() => {
     if (!ready || !wrapRef.current) return
-    if (!chartRef.current) {
-      chartRef.current = echarts.init(wrapRef.current)
-      chartRef.current.on('click', (p: any) => {
-        const cur = liveRef.current
-        const e = cur.byCountry.get(p.name)
-        if (!e) return
-        if (e.nodes.length === 1) cur.onOpen?.(e.nodes[0].uuid)
-        else setPickedA2(p.name)
-      })
+    /* 数据变化时销毁重建，确保 map series 完全重绘 */
+    if (chartRef.current) {
+      chartRef.current.dispose()
+      chartRef.current = null
     }
-    chartRef.current.setOption(option, true)
+    chartRef.current = echarts.init(wrapRef.current)
+    chartRef.current.on('click', (p: any) => {
+      const cur = liveRef.current
+      const e = cur.byCountry.get(p.name)
+      if (!e) return
+      if (e.nodes.length === 1) cur.onOpen?.(e.nodes[0].uuid)
+      else setPickedA2(p.name)
+    })
+    chartRef.current.setOption(option)
   }, [ready, option])
 
   useEffect(() => {
