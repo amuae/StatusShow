@@ -186,7 +186,7 @@ export function WorldMap({ nodes, onOpen }: Props) {
     liveRef.current = { byCountry, onOpen }
   })
 
-  const option = useMemo(() => buildOption(byCountry, dark), [dataSig, dark])
+  const option = useMemo(() => buildOption(byCountry, dark), [dataSig, dark, ready])
   /* 数据到了才渲染地图，避免空数据 → ECharts 拒绝刷新的 bug */
   const canRender = ready && total > 0
 
@@ -326,9 +326,9 @@ function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
       type: 'piecewise' as const,
       show: false,
       pieces: [
-        { min: 1, color: '#8eb296', label: '1' },
-        ...(max >= 2 ? [{ min: 2, color: '#5a8a6c', label: '2+' }] : []),
         ...(max >= 3 ? [{ min: 3, color: '#3a6b4a', label: '3+' }] : []),
+        ...(max >= 2 ? [{ min: 2, color: '#5a8a6c', label: '2+' }] : []),
+        { min: 1, color: '#8eb296', label: '1' },
       ],
       outOfRange: { color: emptyArea },
     },
