@@ -279,8 +279,19 @@ export function WorldMap({ nodes, onOpen }: Props) {
 
 function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
   const entries = [...byCountry.entries()].filter(([a2]) => knownA2.has(a2))
-  const data = entries.map(([a2, e]) => ({ name: a2, value: e.online + e.offline }))
-  const max = data.reduce((m, d) => Math.max(m, d.value), 0)
+  const max = entries.reduce((m, [, e]) => Math.max(m, e.online + e.offline), 0)
+
+  /* 直接在 data 里设颜色，不用 visualMap（visualMap 会覆盖所有国家颜色） */
+  const data = entries.map(([a2, e]) => {
+    const v = e.online + e.offline
+    const t = max > 0 ? v / max : 0
+    return {
+      name: a2,
+      value: v,
+      itemStyle: { areaColor: heatColor(0.35 + 0.65 * t, dark) },
+    }
+  })
+
   const tinyMarkers = entries
     .map(([a2, e]) => {
       const c = tinyCenter.get(a2)
@@ -312,29 +323,10 @@ function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
   const tooltipText = dark ? 'hsl(36,15%,88%)' : 'hsl(220,25%,12%)'
   const tooltipMuted = dark ? 'hsl(36,10%,55%)' : 'hsl(220,12%,40%)'
   const onlineColor = '#3a6b4a'
-  const visTextStyle = dark ? 'rgba(120,100,80,0.65)' : 'rgba(80,70,55,0.70)'
-  const visInRange = ['#8eb296', '#5a8a6c', '#3a6b4a']
-  const visOutOfRange = dark ? 'hsla(36,10%,22%,0.50)' : 'hsla(36,12%,82%,0.60)'
 
   return {
     backgroundColor: 'transparent',
-    visualMap: {
-      type: 'continuous' as const,
-      min: 1,
-      max: Math.max(max, 1),
-      show: max > 0,
-      seriesIndex: 0,
-      left: 16,
-      bottom: 16,
-      itemWidth: 10,
-      itemHeight: 90,
-      orient: 'horizontal' as const,
-      text: ['多', '少'],
-      textStyle: { color: visTextStyle, fontSize: 10 },
-      inRange: { color: visInRange },
-      outOfRange: { color: visOutOfRange },
-      calculable: false,
-    },
+    /* 不用 visualMap — 颜色直接设在 data itemStyle 里 */
     tooltip: {
       trigger: 'item' as const,
       backgroundColor: tooltipBg,
@@ -363,7 +355,7 @@ function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
         layoutCenter: ['50%', '50%'] as [string, string],
         layoutSize: '100%',
         selectedMode: false,
-        /* 无节点国家 — 明显区别于有节点的 */
+        /* 无节点国家 — 深色/灰色底 */
         itemStyle: {
           areaColor: emptyArea,
           borderColor: baseBorder,
