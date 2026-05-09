@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from './components/ui/alert'
 import { useConfig } from './hooks/useConfig'
@@ -10,9 +10,7 @@ import { Footer } from './components/Footer'
 import { NodeCard } from './components/NodeCard'
 import { NodeTable } from './components/NodeTable'
 import { NodeDetail } from './components/NodeDetail'
-const WorldMap = lazy(() =>
-  import('./components/WorldMap').then(m => ({ default: m.WorldMap })),
-)
+import { WorldMap } from './components/WorldMap'
 import { BandwidthGraph } from './components/BandwidthGraph'
 import { NodeValueCard } from './components/NodeValueCard'
 import { TagFilter } from './components/TagFilter'
@@ -220,9 +218,7 @@ export function App() {
               </div>
               {/* World map — full width on mobile, flex-1 on PC */}
               <div className="flex-1 min-w-0">
-                <Suspense fallback={<div className="py-24 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin mr-2" /> 加载地图中…</div>}>
-                  <WorldMap nodes={list} onOpen={setSelected} />
-                </Suspense>
+                <WorldMap nodes={list} onOpen={setSelected} />
               </div>
             </div>
           )}
@@ -261,11 +257,7 @@ export function App() {
             </div>
           )}
           {!empty && view === 'table' && <NodeTable nodes={list} onOpen={setSelected} />}
-          {!empty && view === 'map' && (
-            <Suspense fallback={<div className="py-24 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin mr-2" /> 加载地图中…</div>}>
-              <WorldMap nodes={list} onOpen={setSelected} />
-            </Suspense>
-          )}
+          {!empty && view === 'map' && <WorldMap nodes={list} onOpen={setSelected} />}
 
           {hasErrors && (
             <Alert variant="warning">
