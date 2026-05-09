@@ -269,6 +269,11 @@ export function WorldMap({ nodes, onOpen }: Props) {
   )
 }
 
+/* ──────────────────────────────────────────────────────────
+ * ECharts 颜色必须用逗号分隔的 HSL/RGBA 格式。
+ * 现代 CSS hsl(36 10% 22% / 0.50) 空格语法 ECharts 无法解析！
+ * ────────────────────────────────────────────────────────── */
+
 function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
   const entries = [...byCountry.entries()].filter(([a2]) => knownA2.has(a2))
   const data = entries.map(([a2, e]) => ({ name: a2, value: e.online + e.offline }))
@@ -295,19 +300,18 @@ function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
     })
     .filter((x): x is NonNullable<typeof x> => x != null)
 
-  /* ── 亮色 / 暗色主题色 ─── */
-  const baseArea = dark ? 'hsl(36 18% 80% / 0.18)' : 'hsl(36 18% 72% / 0.25)'
-  const baseBorder = dark ? 'hsl(36 18% 72% / 0.35)' : 'hsl(36 18% 60% / 0.40)'
-  const emptyArea = dark ? 'hsl(36 10% 22% / 0.50)' : 'hsl(36 12% 82% / 0.60)'
+  /* ── 亮色 / 暗色主题色 — 全部使用逗号分隔格式 ─── */
+  const emptyArea = dark ? 'hsla(36,10%,22%,0.50)' : 'hsla(36,12%,82%,0.60)'
+  const baseBorder = dark ? 'hsla(36,18%,72%,0.35)' : 'hsla(36,18%,60%,0.40)'
   const emphasisArea = dark ? '#5a8a6c' : '#3a6b4a'
-  const tooltipBg = dark ? 'hsl(220 22% 10% / 0.94)' : 'hsl(36 30% 96% / 0.96)'
-  const tooltipBorder = dark ? 'hsl(220 14% 22% / 0.6)' : 'hsl(36 18% 80% / 0.7)'
-  const tooltipText = dark ? 'hsl(36 15% 88%)' : 'hsl(220 25% 12%)'
-  const tooltipMuted = dark ? 'hsl(36 10% 55%)' : 'hsl(220 12% 40%)'
+  const tooltipBg = dark ? 'hsla(220,22%,10%,0.94)' : 'hsla(36,30%,96%,0.96)'
+  const tooltipBorder = dark ? 'hsla(220,14%,22%,0.6)' : 'hsla(36,18%,80%,0.7)'
+  const tooltipText = dark ? 'hsl(36,15%,88%)' : 'hsl(220,25%,12%)'
+  const tooltipMuted = dark ? 'hsl(36,10%,55%)' : 'hsl(220,12%,40%)'
   const onlineColor = '#3a6b4a'
   const visTextStyle = dark ? 'rgba(120,100,80,0.65)' : 'rgba(80,70,55,0.70)'
-  const visInRange = dark ? ['#8eb296', '#5a8a6c', '#3a6b4a'] : ['#8eb296', '#5a8a6c', '#3a6b4a']
-  const visOutOfRange = dark ? 'hsl(36 10% 22% / 0.50)' : 'hsl(36 12% 82% / 0.60)'
+  const visInRange = ['#8eb296', '#5a8a6c', '#3a6b4a']
+  const visOutOfRange = dark ? 'hsla(36,10%,22%,0.50)' : 'hsla(36,12%,82%,0.60)'
 
   return {
     backgroundColor: 'transparent',
