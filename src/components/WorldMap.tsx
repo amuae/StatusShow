@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as echarts from 'echarts'
-import { AlertTriangle, ChevronRight, X } from 'lucide-react'
+import { AlertTriangle, ChevronRight, Loader2, X } from 'lucide-react'
 import { Card } from './ui/card'
 import { Flag } from './Flag'
 import { StatusDot } from './StatusDot'
@@ -187,10 +187,12 @@ export function WorldMap({ nodes, onOpen }: Props) {
   })
 
   const option = useMemo(() => buildOption(byCountry, dark), [dataSig, dark])
+  /* 数据到了才渲染地图，避免空数据 → ECharts 拒绝刷新的 bug */
+  const canRender = ready && total > 0
 
   useEffect(() => {
-    if (!ready || !wrapRef.current) return
-    /* 数据变化时销毁重建，确保 map series 完全重绘 */
+    if (!canRender || !wrapRef.current) return
+    /* 销毁重建：数据到达或暗色模式切换时完全重绘 */
     if (chartRef.current) {
       chartRef.current.dispose()
       chartRef.current = null
@@ -204,14 +206,14 @@ export function WorldMap({ nodes, onOpen }: Props) {
       else setPickedA2(p.name)
     })
     chartRef.current.setOption(option)
-  }, [ready, option])
+  }, [canRender, option])
 
   useEffect(() => {
-    if (!ready || !chartRef.current) return
+    if (!canRender || !chartRef.current) return
     const ro = new ResizeObserver(() => chartRef.current?.resize())
     if (wrapRef.current) ro.observe(wrapRef.current)
     return () => ro.disconnect()
-  }, [ready])
+  }, [canRender])
 
   useEffect(() => {
     return () => {
@@ -232,19 +234,20 @@ export function WorldMap({ nodes, onOpen }: Props) {
         className={`relative w-full overflow-hidden rounded-md border border-border/60 ${dark ? 'bg-[hsl(220_20%_12%)]' : 'bg-[hsl(36_25%_90%)]'}`}
         style={{ aspectRatio: `${MAP_W} / ${MAP_H}` }}
       >
-        <div ref={wrapRef} className="absolute inset-0" />
+        {/* 只有数据到了才挂载 canvas */}
+        {canRender && <div ref={wrapRef} className="absolute inset-0" />}
+        {/* 数据未到时显示加载提示 */}
+        {ready && total === 0 && !error && (
+          <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground/60 pointer-events-none">
+            <Loader2 className="h-5 w-5 animate-spin mr-2" /> 加载中…
+          </div>
+        )}
 
         {error && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center text-sm text-muted-foreground">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
             <div>地图加载失败</div>
             <div className="text-xs text-muted-foreground/60 break-all">{error.message}</div>
-          </div>
-        )}
-
-        {!error && ready && total === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground/60 pointer-events-none">
-            没有节点设置过国家代码
           </div>
         )}
 
