@@ -12,10 +12,16 @@ const MAP_H = 520
 const TINY_DEG = 2
 const GEO_URL = `${import.meta.env.BASE_URL}world.geo.json`
 
-const HEAT = [
-  [142, 178, 150],   // 淡墨绿
-  [90, 138, 108],    // 哑光绿
+/* ── 水墨绿热力色 ─── */
+const HEAT_LIGHT = [
+  [186, 208, 190],   // 淡墨绿
+  [120, 160, 132],   // 中墨绿
   [58, 107, 74],     // 深墨绿
+]
+const HEAT_DARK = [
+  [142, 178, 150],
+  [90, 138, 108],
+  [58, 107, 74],
 ]
 
 const cnameMap = new Map<string, string>()
@@ -32,6 +38,11 @@ interface CountryEntry {
 interface Props {
   nodes: Node[]
   onOpen?: (uuid: string) => void
+}
+
+/** 检测当前是否暗色模式 */
+function isDark(): boolean {
+  return document.documentElement.classList.contains('dark')
 }
 
 function ringBbox(ring: number[][]) {
@@ -70,12 +81,13 @@ function tinyMeta(geometry: any): { center: [number, number]; size: number } | n
   }
 }
 
-function heatColor(t: number) {
+function heatColor(t: number, dark: boolean) {
+  const heat = dark ? HEAT_DARK : HEAT_LIGHT
   const x = Math.min(1, Math.max(0, t))
   const seg = x >= 0.5 ? 1 : 0
   const f = (x - seg * 0.5) * 2
-  const a = HEAT[seg]
-  const b = HEAT[seg + 1]
+  const a = heat[seg]
+  const b = heat[seg + 1]
   const r = Math.round(a[0] + (b[0] - a[0]) * f)
   const g = Math.round(a[1] + (b[1] - a[1]) * f)
   const c = Math.round(a[2] + (b[2] - a[2]) * f)
@@ -110,8 +122,16 @@ export function WorldMap({ nodes, onOpen }: Props) {
   const [error, setError] = useState<Error | null>(null)
   const [pickedA2, setPickedA2] = useState<string | null>(null)
   const [renderA2, setRenderA2] = useState<string | null>(null)
+  const [dark, setDark] = useState(isDark)
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const chartRef = useRef<echarts.ECharts | null>(null)
+
+  /* 监听暗色/亮色切换 */
+  useEffect(() => {
+    const obs = new MutationObserver(() => setDark(isDark()))
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => obs.disconnect()
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -166,7 +186,7 @@ export function WorldMap({ nodes, onOpen }: Props) {
     liveRef.current = { byCountry, onOpen }
   })
 
-  const option = useMemo(() => buildOption(byCountry), [dataSig])
+  const option = useMemo(() => buildOption(byCountry, dark), [dataSig, dark])
 
   useEffect(() => {
     if (!ready || !wrapRef.current) return
@@ -180,7 +200,7 @@ export function WorldMap({ nodes, onOpen }: Props) {
         else setPickedA2(p.name)
       })
     }
-    chartRef.current.setOption(option, false)
+    chartRef.current.setOption(option, true)
   }, [ready, option])
 
   useEffect(() => {
@@ -206,21 +226,21 @@ export function WorldMap({ nodes, onOpen }: Props) {
       </div>
 
       <div
-        className="relative w-full overflow-hidden rounded-md border border-border/60 bg-[hsl(220_20%_12%)]"
+        className={`relative w-full overflow-hidden rounded-md border border-border/60 ${dark ? 'bg-[hsl(220_20%_12%)]' : 'bg-[hsl(36_25%_90%)]'}`}
         style={{ aspectRatio: `${MAP_W} / ${MAP_H}` }}
       >
         <div ref={wrapRef} className="absolute inset-0" />
 
         {error && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center text-sm text-white/80">
-            <AlertTriangle className="h-5 w-5 text-amber-400" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center text-sm text-muted-foreground">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
             <div>地图加载失败</div>
-            <div className="text-xs text-white/50 break-all">{error.message}</div>
+            <div className="text-xs text-muted-foreground/60 break-all">{error.message}</div>
           </div>
         )}
 
         {!error && ready && total === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center text-sm text-white/55 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground/60 pointer-events-none">
             没有节点设置过国家代码
           </div>
         )}
@@ -238,7 +258,7 @@ export function WorldMap({ nodes, onOpen }: Props) {
           />
         )}
 
-        <div className="absolute bottom-3 right-4 z-10 font-mono text-sm font-semibold tracking-wider text-white/85 pointer-events-none uppercase">
+        <div className="absolute bottom-3 right-4 z-10 font-mono text-sm font-semibold tracking-wider text-muted-foreground pointer-events-none uppercase">
           {total} nodes
         </div>
       </div>
@@ -246,7 +266,7 @@ export function WorldMap({ nodes, onOpen }: Props) {
   )
 }
 
-function buildOption(byCountry: Map<string, CountryEntry>) {
+function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
   const entries = [...byCountry.entries()].filter(([a2]) => knownA2.has(a2))
   const data = entries.map(([a2, e]) => ({ name: a2, value: e.online + e.offline }))
   const max = data.reduce((m, d) => Math.max(m, d.value), 0)
@@ -262,15 +282,29 @@ function buildOption(byCountry: Map<string, CountryEntry>) {
         value: v,
         symbolSize: 6 + Math.min(8, Math.log2(v + 1) * 3),
         itemStyle: {
-          color: heatColor(0.35 + 0.65 * t),
-          borderColor: 'rgba(58,80,52,0.75)',
+          color: heatColor(0.35 + 0.65 * t, dark),
+          borderColor: dark ? 'rgba(58,80,52,0.75)' : 'rgba(40,70,48,0.65)',
           borderWidth: 0.8,
           shadowBlur: 6,
-          shadowColor: 'rgba(90,138,108,0.40)',
+          shadowColor: dark ? 'rgba(90,138,108,0.40)' : 'rgba(58,107,74,0.30)',
         },
       }
     })
     .filter((x): x is NonNullable<typeof x> => x != null)
+
+  /* ── 亮色 / 暗色主题色 ─── */
+  const baseArea = dark ? 'hsl(36 18% 80% / 0.18)' : 'hsl(36 18% 72% / 0.25)'
+  const baseBorder = dark ? 'hsl(36 18% 72% / 0.35)' : 'hsl(36 18% 60% / 0.40)'
+  const emptyArea = dark ? 'hsl(36 10% 22% / 0.50)' : 'hsl(36 12% 82% / 0.60)'
+  const emphasisArea = dark ? '#5a8a6c' : '#3a6b4a'
+  const tooltipBg = dark ? 'hsl(220 22% 10% / 0.94)' : 'hsl(36 30% 96% / 0.96)'
+  const tooltipBorder = dark ? 'hsl(220 14% 22% / 0.6)' : 'hsl(36 18% 80% / 0.7)'
+  const tooltipText = dark ? 'hsl(36 15% 88%)' : 'hsl(220 25% 12%)'
+  const tooltipMuted = dark ? 'hsl(36 10% 55%)' : 'hsl(220 12% 40%)'
+  const onlineColor = '#3a6b4a'
+  const visTextStyle = dark ? 'rgba(120,100,80,0.65)' : 'rgba(80,70,55,0.70)'
+  const visInRange = dark ? ['#8eb296', '#5a8a6c', '#3a6b4a'] : ['#8eb296', '#5a8a6c', '#3a6b4a']
+  const visOutOfRange = dark ? 'hsl(36 10% 22% / 0.50)' : 'hsl(36 12% 82% / 0.60)'
 
   return {
     backgroundColor: 'transparent',
@@ -286,28 +320,28 @@ function buildOption(byCountry: Map<string, CountryEntry>) {
       itemHeight: 90,
       orient: 'horizontal' as const,
       text: ['多', '少'],
-      textStyle: { color: 'rgba(120,100,80,0.65)', fontSize: 10 },
-      inRange: { color: ['#8eb296', '#5a8a6c', '#3a6b4a'] },
-      outOfRange: { color: 'rgba(160,145,125,0.15)' },
+      textStyle: { color: visTextStyle, fontSize: 10 },
+      inRange: { color: visInRange },
+      outOfRange: { color: visOutOfRange },
       calculable: false,
     },
     tooltip: {
       trigger: 'item' as const,
-      backgroundColor: 'hsl(220 22% 10% / 0.94)',
-      borderColor: 'hsl(220 14% 22% / 0.6)',
+      backgroundColor: tooltipBg,
+      borderColor: tooltipBorder,
       borderWidth: 1,
       padding: [6, 10] as [number, number],
-      textStyle: { color: 'hsl(36 15% 88%)', fontSize: 12 },
+      textStyle: { color: tooltipText, fontSize: 12 },
       formatter: (p: any) => {
         const a2 = p.name
         const cname = cnameMap.get(a2)
-        const head = cname ? `${cname} <span style="color:hsl(36 10% 55%)">${a2}</span>` : a2
+        const head = cname ? `${cname} <span style="color:${tooltipMuted}">${a2}</span>` : a2
         const e = byCountry.get(a2)
-        if (!e) return `<b>${head}</b><br/><span style="color:hsl(36 10% 55%)">无节点</span>`
+        if (!e) return `<b>${head}</b><br/><span style="color:${tooltipMuted}">无节点</span>`
         const offline = e.offline
-          ? ` <span style="color:hsl(36 10% 55%)">· ${e.offline} 离线</span>`
+          ? ` <span style="color:${tooltipMuted}">· ${e.offline} 离线</span>`
           : ''
-        return `<b>${head}</b><br/>${e.online + e.offline} 节点 <span style="color:#3a6b4a">· ${e.online} 在线</span>${offline}`
+        return `<b>${head}</b><br/>${e.online + e.offline} 节点 <span style="color:${onlineColor}">· ${e.online} 在线</span>${offline}`
       },
     },
     series: [
@@ -319,14 +353,15 @@ function buildOption(byCountry: Map<string, CountryEntry>) {
         layoutCenter: ['50%', '50%'] as [string, string],
         layoutSize: '100%',
         selectedMode: false,
+        /* 无节点国家 — 明显区别于有节点的 */
         itemStyle: {
-          areaColor: 'hsl(36 18% 80% / 0.18)',
-          borderColor: 'hsl(36 18% 72% / 0.35)',
+          areaColor: emptyArea,
+          borderColor: baseBorder,
           borderWidth: 0.4,
         },
         emphasis: {
           label: { show: false },
-          itemStyle: { areaColor: '#5a8a6c' },
+          itemStyle: { areaColor: emphasisArea },
         },
         label: { show: false },
         data,
@@ -368,7 +403,7 @@ function NodePopover({
           <div className="flex-1 min-w-0">
             <div className="text-sm font-semibold truncate leading-tight">{cname}</div>
             <div className="text-[11px] text-muted-foreground font-mono mt-0.5">
-              <span className="text-emerald-500">{entry.online} 在线</span>
+              <span className="text-[#3a6b4a]">{entry.online} 在线</span>
               {entry.offline > 0 && <span className="ml-2">{entry.offline} 离线</span>}
             </div>
           </div>
