@@ -18,8 +18,6 @@ import { NodeValueCard } from './components/NodeValueCard'
 import { TagFilter } from './components/TagFilter'
 import { RegionFilter } from './components/RegionFilter'
 import { StatusBanner } from './components/StatusBanner'
-
-
 import { deriveUsage, displayName } from './utils/derive'
 import type { Sort, View } from './types'
 
@@ -187,7 +185,7 @@ export function App() {
     )
   }
 
-  const logo = config.site_logo || DEFAULT_LOGO
+  const logo = config.user_preferences.site_logo || DEFAULT_LOGO
   const empty = list.length === 0
   const hasErrors = errors.length > 0
 
@@ -195,7 +193,7 @@ export function App() {
     <div className="min-h-screen flex flex-col">
       <Background />
       <Navbar
-        siteName={config.site_name || '你没设置'}
+        siteName={config.user_preferences.site_name || '你没设置'}
         logo={logo}
         query={query}
         onQuery={setQuery}
@@ -286,7 +284,7 @@ export function App() {
         </main>
       </div>
 
-      <Footer text={config.footer} />
+      <Footer text={config.user_preferences.footer} repo={config.repository} dist_page={config.dist_page}/>
 
       <NodeDetail
         node={selectedNode}
