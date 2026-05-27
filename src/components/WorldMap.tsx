@@ -187,17 +187,13 @@ export function WorldMap({ nodes, onOpen }: Props) {
   })
 
   const option = useMemo(() => buildOption(byCountry, dark), [dataSig, dark, ready])
-  /* 数据到了才渲染地图，避免空数据 → ECharts 拒绝刷新的 bug */
   const canRender = ready && total > 0
 
   useEffect(() => {
-    if (!canRender || !wrapRef.current) return
-    /* 销毁重建：数据到达或暗色模式切换时完全重绘 */
-    if (chartRef.current) {
-      chartRef.current.dispose()
-      chartRef.current = null
+    if (!ready || !wrapRef.current) return
+    if (!chartRef.current) {
+      chartRef.current = echarts.init(wrapRef.current)
     }
-    chartRef.current = echarts.init(wrapRef.current)
     chartRef.current.on('click', (p: any) => {
       const cur = liveRef.current
       const e = cur.byCountry.get(p.name)
@@ -205,15 +201,15 @@ export function WorldMap({ nodes, onOpen }: Props) {
       if (e.nodes.length === 1) cur.onOpen?.(e.nodes[0].uuid)
       else setPickedA2(p.name)
     })
-    chartRef.current.setOption(option)
-  }, [canRender, option])
+    chartRef.current.setOption(option, false)
+  }, [ready, option])
 
   useEffect(() => {
-    if (!canRender || !chartRef.current) return
+    if (!ready || !chartRef.current) return
     const ro = new ResizeObserver(() => chartRef.current?.resize())
     if (wrapRef.current) ro.observe(wrapRef.current)
     return () => ro.disconnect()
-  }, [canRender])
+  }, [ready])
 
   useEffect(() => {
     return () => {
@@ -234,8 +230,7 @@ export function WorldMap({ nodes, onOpen }: Props) {
         className={`relative w-full overflow-hidden rounded-md border border-border/60 ${dark ? 'bg-[hsl(220_20%_12%)]' : 'bg-[hsl(36_25%_90%)]'}`}
         style={{ aspectRatio: `${MAP_W} / ${MAP_H}` }}
       >
-        {/* 只有数据到了才挂载 canvas */}
-        {canRender && <div ref={wrapRef} className="absolute inset-0" />}
+        <div ref={wrapRef} className="absolute inset-0" />
         {/* 数据未到时显示加载提示 */}
         {ready && total === 0 && !error && (
           <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground/60 pointer-events-none">
@@ -323,14 +318,21 @@ function buildOption(byCountry: Map<string, CountryEntry>, dark: boolean) {
     backgroundColor: 'transparent',
     /* pieces visualMap：只映射 value >= 1 的国家 */
     visualMap: {
-      type: 'piecewise' as const,
-      show: false,
-      pieces: [
-        ...(max >= 3 ? [{ min: 3, color: '#3a6b4a', label: '3+' }] : []),
-        ...(max >= 2 ? [{ min: 2, color: '#5a8a6c', label: '2+' }] : []),
-        { min: 1, color: '#8eb296', label: '1' },
-      ],
+      type: 'continuous' as const,
+      min: max > 1 ? 1 : 0,
+      max: Math.max(max, 2),
+      show: max > 0,
+      seriesIndex: 0,
+      left: 16,
+      bottom: 16,
+      itemWidth: 10,
+      itemHeight: 90,
+      orient: 'horizontal' as const,
+      text: ['多', '少'],
+      textStyle: { color: dark ? 'rgba(255,255,255,0.55)' : 'rgba(60,50,40,0.7)', fontSize: 10 },
+      inRange: { color: ['#8eb296', '#5a8a6c', '#3a6b4a'] },
       outOfRange: { color: emptyArea },
+      calculable: false,
     },
     tooltip: {
       trigger: 'item' as const,
