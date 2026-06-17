@@ -207,13 +207,6 @@ export function App() {
           {/* Status banner */}
           {!empty && <StatusBanner nodes={nodes} />}
 
-          {/* World map */}
-          {!empty && (
-            <Suspense fallback={<div className="py-24 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin mr-2" /> 加载地图中…</div>}>
-              <WorldMap nodes={list} onOpen={setSelected} />
-            </Suspense>
-          )}
-
           {/* Filters */}
           {!empty && (
             <div className="flex items-center gap-3">
