@@ -13,8 +13,7 @@ import { NodeDetail } from './components/NodeDetail'
 const WorldMap = lazy(() =>
   import('./components/WorldMap').then(m => ({ default: m.WorldMap })),
 )
-import { BandwidthGraph } from './components/BandwidthGraph'
-import { NodeValueCard } from './components/NodeValueCard'
+
 import { TagFilter } from './components/TagFilter'
 import { RegionFilter } from './components/RegionFilter'
 import { StatusBanner } from './components/StatusBanner'
@@ -208,21 +207,11 @@ export function App() {
           {/* Status banner */}
           {!empty && <StatusBanner nodes={nodes} />}
 
-          {/* Map area: sidebar cards (PC) + world map */}
+          {/* World map */}
           {!empty && (
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Left sidebar cards — hidden on mobile, shown on lg+ */}
-              <div className="hidden lg:flex flex-col gap-4 w-80 shrink-0">
-                <BandwidthGraph nodes={nodes} />
-                <NodeValueCard nodes={nodes} />
-              </div>
-              {/* World map — full width on mobile, flex-1 on PC */}
-              <div className="flex-1 min-w-0">
-                <Suspense fallback={<div className="py-24 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin mr-2" /> 加载地图中…</div>}>
-                  <WorldMap nodes={list} onOpen={setSelected} />
-                </Suspense>
-              </div>
-            </div>
+            <Suspense fallback={<div className="py-24 flex items-center justify-center text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin mr-2" /> 加载地图中…</div>}>
+              <WorldMap nodes={list} onOpen={setSelected} />
+            </Suspense>
           )}
 
           {/* Filters */}
